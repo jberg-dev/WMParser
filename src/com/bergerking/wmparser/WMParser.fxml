@@ -8,21 +8,25 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
 <BorderPane fx:controller="com.bergerking.wmparser.Controller"
-            xmlns:fx="http://javafx.com/fxml">
+            xmlns:fx="http://javafx.com/fxml" fx:id="mainBorderPane">
     <top>
         <MenuBar fx:id="menuBar">
             <Menu fx:id="File" text="File">
-                <MenuItem fx:id="Load" text="Load"></MenuItem>
-                <SeparatorMenuItem></SeparatorMenuItem>
+                <MenuItem fx:id="Load" text="Load" onAction="#loadFile"></MenuItem>
+                <SeparatorMenuItem />
                 <MenuItem fx:id="Exit" text="Exit"></MenuItem>
             </Menu>
         </MenuBar>
+    </top>
+
+    <center>
         <TabPane fx:id="mainTabPane">
             <Tab text="test"></Tab>
             <Tab text="test2"></Tab>
             <Tab text="test3"></Tab>
         </TabPane>
-    </top>
+    </center>
+
     <bottom>
         <Label fx:id="statusLabel" prefWidth="Infinity" text="testing the text label"></Label>
     </bottom>
