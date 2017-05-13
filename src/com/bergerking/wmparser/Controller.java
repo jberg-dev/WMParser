@@ -1,5 +1,6 @@
 package com.bergerking.wmparser;
 
+import com.bergerking.wmparser.DataModel.DataManagementModel;
 import com.bergerking.wmparser.DataModel.DataPoint;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.ConsoleHandler;
@@ -95,6 +97,9 @@ public class Controller {
         }
         else LOGGER.log(Level.SEVERE,"Controller.loadFile: File was NULL!");
 
+
+
+
     }
     /*
         Read file passed in, return set of lines.
@@ -121,7 +126,7 @@ public class Controller {
     }
 
     //TODO
-    private List<DataPoint> parseInput(List list)
+    private DataManagementModel parseInput(List list)
     {
         return null;
     }
