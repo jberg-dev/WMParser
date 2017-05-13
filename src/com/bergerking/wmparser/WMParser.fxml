@@ -12,22 +12,18 @@
     <top>
         <MenuBar fx:id="menuBar">
             <Menu fx:id="File" text="File">
-                <MenuItem fx:id="Load" text="Load" onAction="#loadFile"></MenuItem>
+                <MenuItem fx:id="Load" text="Load" onAction="#loadFile" />
                 <SeparatorMenuItem />
-                <MenuItem fx:id="Exit" text="Exit"></MenuItem>
+                <MenuItem fx:id="Exit" text="Exit" onAction="#Exit" />
             </Menu>
         </MenuBar>
     </top>
 
     <center>
-        <TabPane fx:id="mainTabPane">
-            <Tab text="test"></Tab>
-            <Tab text="test2"></Tab>
-            <Tab text="test3"></Tab>
-        </TabPane>
+        <TabPane fx:id="mainTabPane" />
     </center>
 
     <bottom>
-        <Label fx:id="statusLabel" prefWidth="Infinity" text="testing the text label"></Label>
+        <Label fx:id="statusLabel" prefWidth="Infinity" />
     </bottom>
 </BorderPane>
