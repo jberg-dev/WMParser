@@ -3,6 +3,7 @@ package com.bergerking.wmparser;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,23 +18,35 @@ import static org.junit.Assert.*;
  */
 public class ControllerTest {
 
-//    Path p = Paths.get("easySample.txt");
-//    List testFile = new ArrayList();
-//
-//    @Before
-//    public void setUp() throws Exception {
-//
-//        //load test file to use for manipulations.
-//        try {
-//            Files.lines(p).forEach(s -> testFile.add(s));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    Controller controller;
+    final String testFileName = "Sample.txt";
+    Path p = Paths.get(testFileName);
+    List testFileArray = new ArrayList();
+    File testFile;
+
+    @Before
+    public void setUp() throws Exception {
+
+        //load test file to use for manipulations.
+        try {
+            testFile = new File(testFileName);
+            Files.lines(p).forEach(s -> testFileArray.add(s));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        controller = new Controller();
+    }
 
     @Test
-    public void loadSelectedFile() throws Exception {
-        fail("not implemented");
+    public void loadSelectedFile_predetermined_file() throws Exception {
+        List list = controller.loadSelectedFile(testFile);
+        assertEquals(1090, list.size());
+
+    }
+
+    @Test
+    public void loadSelectedFile_expect_error() throws  Exception {
+        assertNull(controller.loadSelectedFile(null));
     }
 
 }

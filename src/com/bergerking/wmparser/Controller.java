@@ -57,11 +57,11 @@ public class Controller {
 
 //        try {
 //            Path p = Paths.get("easySample.txt");
-//            List testFile = new ArrayList();
-//            Files.lines(p).forEach(s -> testFile.add(s));
+//            List testFileEasy = new ArrayList();
+//            Files.lines(p).forEach(s -> testFileEasy.add(s));
 //
-//            testFile.forEach(s -> System.out.println(s));
-//            System.out.println(testFile.size());
+//            testFileEasy.forEach(s -> System.out.println(s));
+//            System.out.println(testFileEasy.size());
 //
 //        } catch (IOException e) {
 //            e.printStackTrace();
@@ -99,12 +99,12 @@ public class Controller {
     /*
         Read file passed in, return set of lines.
      */
-    protected List<String> loadSelectedFile(File file){
+    public List<String> loadSelectedFile(File file){
 
         List<String> input = new ArrayList<>();
 
         try {
-            Files.lines(file.toPath()).forEach(s -> input.add(s));
+            if(file != null) Files.lines(file.toPath()).forEach(s -> input.add(s));
         }
         catch (IOException e){
             LOGGER.log(Level.FINE, e.toString());
