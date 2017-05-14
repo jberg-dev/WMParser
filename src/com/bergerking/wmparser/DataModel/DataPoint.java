@@ -15,6 +15,7 @@ public class DataPoint {
     private String timestamp;
     private String player;
     private ArrayList<String> tokens;
+    private Boolean visible;
 
     public DataPoint() {
         this.date = "DEFAULT";
@@ -23,6 +24,7 @@ public class DataPoint {
         ArrayList al = new ArrayList();
         al.add("DEFAULT");
         this.tokens = al;
+        this.visible = true;
 
     }
 
@@ -36,6 +38,8 @@ public class DataPoint {
     public String getDate() {
         return this.date;
     }
+
+    public void toggleVisible() { this.visible = !this.visible; }
 
     public ArrayList<String> getTokens() {
         return this.tokens;

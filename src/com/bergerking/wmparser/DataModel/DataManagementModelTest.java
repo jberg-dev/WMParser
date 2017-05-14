@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -17,7 +18,7 @@ public class DataManagementModelTest {
     ArrayList al;
 
     @Before
-    public void setUp() {
+    public void setUp() throws  Exception {
 
         al = new ArrayList();
 
@@ -31,8 +32,38 @@ public class DataManagementModelTest {
     }
 
     @Test
-    public void addItem() {
+    public void addItem_properItem() throws  Exception {
         Boolean result = d.addItem(dp);
         assertTrue(result);
+    }
+
+    @Test
+    public void addItem_malformedItem() throws  Exception {
+        dp = new DataPoint();
+        Boolean result = d.addItem(dp);
+        assertFalse(result);
+    }
+
+    @Test
+    public void getDataHolderForName_properItem() throws  Exception {
+        d.addItem(dp);
+        Optional<DataHolder> result = d.getDataHolderForName(dp.getPlayer());
+        assertTrue(result.isPresent());
+    }
+
+    @Test
+    public void getDataHolderForName_malformedItem() throws  Exception {
+
+        Optional<DataHolder> result = d.getDataHolderForName("Bert");
+        assertFalse(result.isPresent());
+
+    }
+
+    @Test
+    public void addItem_add_many() throws  Exception {
+        for(int i = 0; i < 100; i++) {
+            d.addItem(dp);
+        }
+        assertEquals(100, d.getDataHolderForName(dp.getPlayer()).get().getDataPoints().size());
     }
 }
