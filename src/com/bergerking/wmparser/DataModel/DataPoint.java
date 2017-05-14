@@ -1,5 +1,7 @@
 package com.bergerking.wmparser.DataModel;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,15 +13,15 @@ import java.util.List;
  */
 public class DataPoint {
 
-    private String date;
-    private String timestamp;
+    private LocalDate date;
+    private LocalTime timestamp;
     private String player;
     private ArrayList<String> tokens;
     private Boolean visible;
 
     public DataPoint() {
-        this.date = "DEFAULT";
-        this.timestamp = "DEFAULT";
+        this.date = LocalDate.MIN;
+        this.timestamp = LocalTime.MIN;
         this.player = "DEFAULT";
         ArrayList al = new ArrayList();
         al.add("DEFAULT");
@@ -28,14 +30,14 @@ public class DataPoint {
 
     }
 
-    public DataPoint(String date, String timestamp, String player, ArrayList<String> tokens) {
+    public DataPoint(LocalDate date, LocalTime timestamp, String player, ArrayList<String> tokens) {
         this.date = date;
         this.timestamp = timestamp;
         this.player = player;
         this.tokens = tokens;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return this.date;
     }
 
@@ -44,7 +46,7 @@ public class DataPoint {
     public ArrayList<String> getTokens() {
         return this.tokens;
     }
-    public String getTimestamp() {
+    public LocalTime getTimestamp() {
         return this.timestamp;
     }
 
@@ -52,11 +54,11 @@ public class DataPoint {
         return this.player;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(LocalTime timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -71,15 +73,15 @@ public class DataPoint {
     public String toString() {
         String s = "";
 
-        s += this.date + " ";
-        s += this.timestamp + " ";
+        s += this.date.toString() + " ";
+        s += this.timestamp.toString() + " ";
         s += this.player + " ";
 
         for(int i = 0 ; i < this.tokens.size(); i++) {
             s += "[" + this.tokens.get(i);
 
             if((i + 1) < this.tokens.size()) s+= "] ";
-            else s += "}";
+            else s += "]";
         }
 
         return s;

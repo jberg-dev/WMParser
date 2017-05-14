@@ -1,5 +1,6 @@
 package com.bergerking.wmparser;
 
+import com.bergerking.wmparser.DataModel.DataHolder;
 import com.bergerking.wmparser.DataModel.DataManagementModel;
 import com.bergerking.wmparser.DataModel.DataPoint;
 import javafx.fxml.FXML;
@@ -16,13 +17,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Bergerking on 2017-04-23.
@@ -46,6 +48,7 @@ public class Controller {
 
     private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
     public static final boolean testing = true;
+    public DataManagementModel dmm = new DataManagementModel();
 
     public void initialize(){
         ConsoleHandler ch = new ConsoleHandler();
@@ -92,10 +95,10 @@ public class Controller {
 
         //Handle the file
         if(file != null) {
-            LOGGER.log(Level.FINEST, "Loading file from " + file.getAbsolutePath());
+            if(!testing) LOGGER.log(Level.FINEST, "Loading file from " + file.getAbsolutePath());
             parseInput(loadSelectedFile(file));
         }
-        else LOGGER.log(Level.SEVERE,"Controller.loadFile: File was NULL!");
+        else LOGGER.log(Level.SEVERE,"File was NULL!");
 
 
 
@@ -120,15 +123,58 @@ public class Controller {
             if(testing) System.out.println("Read "+ input.size() + " lines from file");
             return input;
         }
-        else LOGGER.log(Level.WARNING, "Controller.loadSelectedFile: Failed to read anything from file or file was empty.");
+        else LOGGER.log(Level.WARNING, "Failed to read anything from file or file was empty.");
 
         return null;
     }
 
-    //TODO
-    private DataManagementModel parseInput(List list)
-    {
-        return null;
+    /*
+        Input list of strings, get out magical list of itemization.
+     */
+    public void parseInput(List<String> list) {
+        System.out.println(list.size());
+        for(String s : list) {
+            parseLine(s);
+        }
+    }
+
+    private void parseLine(String line){
+
+        if(line.charAt(0) == '[') {
+
+            Pattern pattern = Pattern.compile("^\\[(.+)\\]\\s([a-zA-Z]{3,})\\s\\[(.+)\\]$");
+            Matcher matcher = pattern.matcher(line);
+
+            if(matcher.find())
+            {
+                ArrayList<String> tempArr = new ArrayList<>();
+                LocalTime lt = LocalTime.MIN;
+
+//                System.out.println(matcher.group(1));
+                lt = lt.parse(matcher.group(1));
+//                System.out.println(lt.toString());
+                tempArr.addAll(Arrays.asList(matcher.group(3).split(", ")));
+
+                DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), lt, matcher.group(2), tempArr);
+                dmm.addItem(newDataPoint);
+//                System.out.println(newDataPoint.toString());
+            }
+            else {
+                if(testing) System.out.println("Failed to parse line: " + line);
+                else LOGGER.log(Level.FINE, "Failed to parse message after '[' : " + line);
+            }
+        }
+        else if(line.charAt(0) == 'L') {
+            System.out.println(line);
+            Pattern pattern = Pattern.compile("(^.*)(\\d{4}-\\d{2}-\\d{2})");
+            Matcher matcher = pattern.matcher(line);
+            if(matcher.find()) {
+                System.out.println(matcher.group(2));
+                dmm.setDateHolder(LocalDate.parse(matcher.group(2)));
+            }
+            else System.out.println("No Match!");
+        }
+        else LOGGER.log(Level.FINER, "Malformed line: " + line);
     }
 
     /*

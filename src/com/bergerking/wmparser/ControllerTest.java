@@ -49,4 +49,10 @@ public class ControllerTest {
         assertNull(controller.loadSelectedFile(null));
     }
 
+    @Test
+    public void parseInput() throws Exception {
+        controller.parseInput(testFileArray);
+        assertTrue(true);
+    }
+
 }

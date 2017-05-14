@@ -2,6 +2,7 @@ package com.bergerking.wmparser.DataModel;
 
 import com.bergerking.wmparser.Controller;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -12,7 +13,8 @@ import java.util.logging.Logger;
  */
 public class DataManagementModel {
     private static final Logger LOGGER = Logger.getLogger(DataManagementModel.class.getName());
-    private static ArrayList<DataHolder> container;
+    public ArrayList<DataHolder> container;
+    private LocalDate holder = LocalDate.MIN;
 
 
 
@@ -57,7 +59,7 @@ public class DataManagementModel {
                 return true;
             }
         }
-
+        LOGGER.log(Level.FINEST, "This message should never be reached, you have failed to add a data point");
         return false;
     }
 
@@ -66,5 +68,13 @@ public class DataManagementModel {
         Optional<DataHolder> dh = container.stream().filter(x -> name.equals(x.getName())).findFirst();
         return dh;
 
+    }
+
+    public void setDateHolder(LocalDate ld) {
+        this.holder = ld;
+    }
+
+    public LocalDate getDateHolder() {
+        return this.holder;
     }
 }

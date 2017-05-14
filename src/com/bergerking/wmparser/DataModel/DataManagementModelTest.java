@@ -3,6 +3,8 @@ package com.bergerking.wmparser.DataModel;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -26,8 +28,11 @@ public class DataManagementModelTest {
         al.add("RESULT");
         al.add("TARGET");
 
+        LocalDate ld = LocalDate.parse("2017-03-21");
+        LocalTime lt = LocalTime.parse("15:08:45");
+
         d = new DataManagementModel();
-        dp = new DataPoint("2017-03-21", "15:08:45", "Jberg", al);
+        dp = new DataPoint(ld, lt, "Jberg", al);
 
     }
 
