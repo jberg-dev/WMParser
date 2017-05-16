@@ -6,9 +6,20 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.image.ImageView?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
+            fx:id="TabLayout"
             fx:controller="com.bergerking.wmparser.Controller"
             prefHeight="400.0" prefWidth="600.0">
+    <center>
+        <HBox>
+            <ListView fx:id="ListOfActions"></ListView>
+            <VBox>
+                <ImageView fx:id="Graph"></ImageView>
+                <ListView fx:id="RollingLog"></ListView>
+            </VBox>
+        </HBox>
+    </center>
 
 </BorderPane>

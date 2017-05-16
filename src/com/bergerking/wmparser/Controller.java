@@ -4,10 +4,9 @@ import com.bergerking.wmparser.DataModel.DataHolder;
 import com.bergerking.wmparser.DataModel.DataManagementModel;
 import com.bergerking.wmparser.DataModel.DataPoint;
 import javafx.fxml.FXML;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TabPane;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -71,6 +70,11 @@ public class Controller {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
+
+
+
+
+
     }
 
 
@@ -184,5 +188,10 @@ public class Controller {
     public void Exit(){
         Stage s = (Stage) mainBorderPane.getScene().getWindow();
         s.close();
+    }
+
+    public DataManagementModel getDmm() {
+        if(testing) return this.dmm;
+        else return null;
     }
 }
