@@ -12,6 +12,7 @@ import java.util.logging.Logger;
  * Created by Bergerking on 2017-05-13.
  */
 public class DataManagementModel {
+
     private static final Logger LOGGER = Logger.getLogger(DataManagementModel.class.getName());
     public ArrayList<DataHolder> container;
     private LocalDate holder = LocalDate.MIN;

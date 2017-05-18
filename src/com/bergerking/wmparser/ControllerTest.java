@@ -58,7 +58,10 @@ public class ControllerTest {
 
     @Test
     public void tabFactory() throws Exception {
+        //need to initialize a JFXPanel for this test to even work. do nothing with it.
         JFXPanel p = new JFXPanel();
+
+
         controller.parseInput(testFileArray);
         TabFactory tf = new TabFactory();
         tf.manufactureTab(controller.getDmm().getDataHolderForName("Valerie").get());

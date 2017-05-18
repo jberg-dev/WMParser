@@ -16,21 +16,21 @@ public class DataPoint {
     private LocalDate date;
     private LocalTime timestamp;
     private String player;
-    private ArrayList<String> tokens;
+    private List tokens;
     private Boolean visible;
 
     public DataPoint() {
         this.date = LocalDate.MIN;
         this.timestamp = LocalTime.MIN;
         this.player = "DEFAULT";
-        ArrayList al = new ArrayList();
-        al.add("DEFAULT");
+        ArrayList<DataNode> al = new ArrayList();
+        al.add(new DataNode());
         this.tokens = al;
         this.visible = true;
 
     }
 
-    public DataPoint(LocalDate date, LocalTime timestamp, String player, ArrayList<String> tokens) {
+    public DataPoint(LocalDate date, LocalTime timestamp, String player, List<DataNode> tokens) {
         this.date = date;
         this.timestamp = timestamp;
         this.player = player;
@@ -43,7 +43,7 @@ public class DataPoint {
 
     public void toggleVisible() { this.visible = !this.visible; }
 
-    public ArrayList<String> getTokens() {
+    public List<DataNode> getTokens() {
         return this.tokens;
     }
     public LocalTime getTimestamp() {
@@ -66,9 +66,10 @@ public class DataPoint {
         this.player = player;
     }
 
-    public void setTokens(ArrayList<String> tokens) {
+    public void setTokens(List<DataNode> tokens) {
         this.tokens = tokens;
     }
+
     @Override
     public String toString() {
         String s = "";

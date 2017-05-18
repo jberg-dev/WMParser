@@ -47,7 +47,8 @@ public class TabFactory {
         Node graph = n.lookup("#Graph");
 
 
-        ObjectProperty<Node> op = tabby.contentProperty();
+
+
 
         return rv;
     }
