@@ -2,6 +2,9 @@ package com.bergerking.wmparser.DataModel;
 
 /**
  * Created by Bergerking on 2017-05-18.
+ *
+ *  The parsed data nodes from the macro log file, itemized in key-value format.
+ *
  */
 public class DataNode {
 
@@ -37,7 +40,7 @@ public class DataNode {
 
     @Override
     public String toString() {
-        return this.key +", "+ this.value;
+        return "(" + this.key +", "+ this.value + ")";
     }
 
 }

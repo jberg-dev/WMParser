@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 /**
  * Created by Bergerking on 2017-05-13.
+ *
+ *  Management system for a full set of parsed lines, the container so to speak.
+ *
  */
 public class DataHolder {
     private String name;

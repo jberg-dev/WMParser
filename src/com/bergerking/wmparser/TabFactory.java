@@ -1,15 +1,23 @@
 package com.bergerking.wmparser;
 
 import com.bergerking.wmparser.DataModel.DataHolder;
+import com.bergerking.wmparser.DataModel.DataNode;
+import com.bergerking.wmparser.DataModel.DataPoint;
 import javafx.beans.property.ObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -25,15 +33,13 @@ public class TabFactory {
         Optional<Tab> rv = Optional.empty();
         Tab tabby = new Tab();
 
+        //This is fucking ugly, but I spent 8+ hours trying to get it to work
+        //to only find this workaround. deal with it.
+        ParserMain pm = new ParserMain();
+
         try {
-            String s = "GenericTab.fxml";
-            File f = new File(s);
-            System.out.println(f.exists());
-            FXMLLoader loader = new FXMLLoader();
-            tabby.setContent(loader.load(getClass().getClassLoader().getResource("GenericTab.fxml")));
-            System.out.println(tabby);
-        }
-        catch (IOException e) {
+            tabby.setContent(pm.getGenericTab());
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -46,7 +52,19 @@ public class TabFactory {
         Node listofActions = n.lookup("#ListOfActions");
         Node graph = n.lookup("#Graph");
 
+        TableView tv = (TableView) rollingLog;
+        TableColumn dateColumn = new TableColumn("Date");
+        TableColumn timeColumn = new TableColumn("Time");
+        TableColumn dataColumn = new TableColumn("Data");
 
+        dateColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("date"));
+        timeColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("timestamp"));
+        dataColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("tokens"));
+
+        tv.setItems(FXCollections.observableArrayList(datters.getDataPoints()));
+        tv.getColumns().addAll(dateColumn, timeColumn, dataColumn);
+
+        rv = Optional.of(tabby);
 
 
 

@@ -13,13 +13,15 @@ import java.io.IOException;
 
 public class ParserMain extends Application {
 
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
 
         Parent root = FXMLLoader.load(getClass().getResource("WMParser.fxml"));
+
         primaryStage.setTitle("Wurm Macro Parser");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root, 800, 500));
         primaryStage.show();
 
 
@@ -32,5 +34,9 @@ public class ParserMain extends Application {
 
         launch(args);
 
+    }
+
+    public Node getGenericTab() throws Exception {
+        return FXMLLoader.load(getClass().getResource("GenericTab.fxml"));
     }
 }

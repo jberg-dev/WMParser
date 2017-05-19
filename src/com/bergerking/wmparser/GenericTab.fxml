@@ -14,10 +14,10 @@
             prefHeight="400.0" prefWidth="600.0">
     <center>
         <HBox>
-            <ListView fx:id="ListOfActions"></ListView>
+            <ListView fx:id="ListOfActions" prefWidth="200"></ListView>
             <VBox>
                 <ImageView fx:id="Graph"></ImageView>
-                <ListView fx:id="RollingLog"></ListView>
+                <TableView fx:id="RollingLog" prefWidth="600"></TableView>
             </VBox>
         </HBox>
     </center>

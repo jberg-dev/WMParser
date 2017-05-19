@@ -10,6 +10,9 @@ import java.util.logging.Logger;
 
 /**
  * Created by Bergerking on 2017-05-13.
+ *
+ *  Container of the containers of all the parsed players' logs.
+ *
  */
 public class DataManagementModel {
 
@@ -60,7 +63,7 @@ public class DataManagementModel {
                 return true;
             }
         }
-        LOGGER.log(Level.FINEST, "This message should never be reached, you have failed to add a data point");
+        LOGGER.log(Level.WARNING, "This message should never be reached, you have failed to add a data point");
         return false;
     }
 
@@ -77,5 +80,17 @@ public class DataManagementModel {
 
     public LocalDate getDateHolder() {
         return this.holder;
+    }
+
+    public Optional<ArrayList<String>> getAllHolders()
+    {
+        Optional<ArrayList<String>> rv = Optional.empty();
+        ArrayList<String> als = new ArrayList<>();
+
+        container.stream().forEach(x -> als.add(x.getName()));
+
+        if(als.size() > 0) rv = Optional.of(als);
+
+        return rv;
     }
 }

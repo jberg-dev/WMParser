@@ -4,6 +4,7 @@ import com.bergerking.wmparser.DataModel.DataHolder;
 import com.bergerking.wmparser.DataModel.DataManagementModel;
 import com.bergerking.wmparser.DataModel.DataNode;
 import com.bergerking.wmparser.DataModel.DataPoint;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -58,23 +59,6 @@ public class Controller {
         if(testing) LOGGER.setLevel(Level.FINEST);
         else LOGGER.setLevel(Level.FINE);
 
-        //System.out.println(System.getProperty("user.dir"));
-
-//        try {
-//            Path p = Paths.get("easySample.txt");
-//            List testFileEasy = new ArrayList();
-//            Files.lines(p).forEach(s -> testFileEasy.add(s));
-//
-//            testFileEasy.forEach(s -> System.out.println(s));
-//            System.out.println(testFileEasy.size());
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-
-
-
 
     }
 
@@ -98,10 +82,11 @@ public class Controller {
         fileChooser.setTitle("Select Macro Log File");
         File file = fileChooser.showOpenDialog(mainBorderPane.getScene().getWindow());
 
-        //Handle the file
+        //Handle the file and add to view
         if(file != null) {
             if(!testing) LOGGER.log(Level.FINEST, "Loading file from " + file.getAbsolutePath());
             parseInput(loadSelectedFile(file));
+            addNewTab();
         }
         else LOGGER.log(Level.SEVERE,"File was NULL!");
 
@@ -136,6 +121,30 @@ public class Controller {
     /*
         Input list of strings, get out magical list of itemization.
      */
+
+    private void addNewTab() {
+        Optional<ArrayList<String>> o = dmm.getAllHolders();
+        TabFactory tf = new TabFactory();
+
+        if(o.isPresent()) {
+            ArrayList<String> al= o.get();
+
+            for(int i = 0; i < al.size(); i++) {
+
+                final int iterate = i;
+
+                if(!mainTabPane.getTabs().stream().anyMatch(x -> x.getId().equals(al.get(iterate)))) {
+                    Optional<Tab> t = tf.manufactureTab(dmm.getDataHolderForName(al.get(i)).get());
+
+                    if(t.isPresent()) mainTabPane.getTabs().add(t.get());
+                }
+                else if(testing) System.out.println("Did not attempt to create new tab for: " + al.get(i));
+
+                else LOGGER.log(Level.WARNING, "Failed to create tab");
+            }
+        }
+        else System.out.println("O was not present");
+    }
     public void parseInput(List<String> list) {
         System.out.println(list.size());
         for(String s : list) {
@@ -168,9 +177,28 @@ public class Controller {
                 dmm.addItem(newDataPoint);
 //                System.out.println(newDataPoint.toString());
             }
+
             else {
-                if(testing) System.out.println("Failed to parse line: " + line);
-                else LOGGER.log(Level.FINER, "Failed to parse message after '[' : " + line);
+                List<String> tempArr = new ArrayList<>();
+                LocalTime lt = LocalTime.MIN;
+
+                pattern = Pattern.compile("^\\[(.+?)\\]\\s<+([a-zA-Z]{3,})>+\\s(.+)$");
+                matcher = pattern.matcher(line);
+
+
+                if(matcher.find()) {
+                    lt = lt.parse(matcher.group(1));
+                    tempArr.addAll(Arrays.asList(matcher.group(3).split(", ")));
+                    List<DataNode> outList = parseAllDataNodes(tempArr);
+
+                    DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), lt, matcher.group(2), outList);
+                    dmm.addItem(newDataPoint);
+                }
+                else {
+                    if(testing) System.out.println("Failed to parse line: " + line);
+                    else LOGGER.log(Level.WARNING, "Failed to parse message after '[' : " + line);
+                }
+
             }
         }
         else if(line.charAt(0) == 'L') {
@@ -181,9 +209,9 @@ public class Controller {
                 System.out.println(matcher.group(2));
                 dmm.setDateHolder(LocalDate.parse(matcher.group(2)));
             }
-            else System.out.println("No Match!");
+            else LOGGER.log(Level.WARNING, "No Match for: " + line);
         }
-        else LOGGER.log(Level.FINER, "Malformed line: " + line);
+        else LOGGER.log(Level.WARNING, "Malformed line: " + line);
     }
 
     /*
@@ -254,6 +282,26 @@ public class Controller {
             String number = s.substring(6, 7);
             returnVal.add(new DataNode("Found triggers", number));
         }
+        else if(s.contains("macroquestion timeout. ")) {
+            String quack = s.substring(24);
+            String[] out = quack.split(": ");
+
+            if(out.length == 2) {
+                returnVal.add(new DataNode("Macroquestion", "timeout"));
+                returnVal.add(new DataNode(out[0], out[1]));
+            }
+            else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
+        }
+        else if(s.contains("wrong")){
+            String[] out = s.split(": ");
+
+            if(out.length == 2) returnVal.add(new DataNode(out[0], out[1]));
+            else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
+        }
+        else if(s.contains("out of ")) {
+            String amount = s.substring(7, 8);
+            returnVal.add(new DataNode("Out of", amount));
+        }
 
         else LOGGER.log(Level.WARNING, "Reached catch-all on parsing with line: " + s);
     }
@@ -270,5 +318,23 @@ public class Controller {
     public DataManagementModel getDmm() {
         if(testing) return this.dmm;
         else return null;
+    }
+
+    @FXML
+    public void Test() {
+        final String testFileName = "Sample.txt";
+        Path p = Paths.get(testFileName);
+        List testFileArray = new ArrayList();
+
+        try {
+            Files.lines(p).forEach(s -> testFileArray.add(s));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        parseInput(testFileArray);
+
+        addNewTab();
+
     }
 }
