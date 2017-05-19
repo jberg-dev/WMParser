@@ -14,14 +14,14 @@ import java.util.List;
 public class DataPoint {
 
     private LocalDate date;
-    private LocalTime timestamp;
+    private String timestamp;
     private String player;
     private List tokens;
     private Boolean visible;
 
     public DataPoint() {
         this.date = LocalDate.MIN;
-        this.timestamp = LocalTime.MIN;
+        this.timestamp = LocalTime.MIN.toString();
         this.player = "DEFAULT";
         ArrayList<DataNode> al = new ArrayList();
         al.add(new DataNode());
@@ -30,7 +30,7 @@ public class DataPoint {
 
     }
 
-    public DataPoint(LocalDate date, LocalTime timestamp, String player, List<DataNode> tokens) {
+    public DataPoint(LocalDate date, String timestamp, String player, List<DataNode> tokens) {
         this.date = date;
         this.timestamp = timestamp;
         this.player = player;
@@ -46,7 +46,7 @@ public class DataPoint {
     public List<DataNode> getTokens() {
         return this.tokens;
     }
-    public LocalTime getTimestamp() {
+    public String getTimestamp() {
         return this.timestamp;
     }
 
@@ -59,7 +59,7 @@ public class DataPoint {
     }
 
     public void setTimestamp(LocalTime timestamp) {
-        this.timestamp = timestamp;
+        this.timestamp = timestamp.toString();
     }
 
     public void setPlayer(String player) {

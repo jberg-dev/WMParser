@@ -32,7 +32,7 @@ public class DataManagementModelTest {
         LocalTime lt = LocalTime.parse("15:08:45");
 
         d = new DataManagementModel();
-        dp = new DataPoint(ld, lt, "Jberg", al);
+        dp = new DataPoint(ld, lt.toString(), "Jberg", al);
 
     }
 

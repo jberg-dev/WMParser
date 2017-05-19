@@ -9,16 +9,16 @@ import javafx.collections.ObservableMap;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 
+import javax.swing.text.html.ImageView;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by Bergerking on 2017-05-14.
@@ -52,7 +52,17 @@ public class TabFactory {
         Node listofActions = n.lookup("#ListOfActions");
         Node graph = n.lookup("#Graph");
 
+
+        Label lab = (Label) graph;
         TableView tv = (TableView) rollingLog;
+        StackPane lv = (StackPane) listofActions;
+
+        TreeMap<String, Integer> tree = (TreeMap) datters.getUniqueDataNodesAndCount(true, true);
+
+
+
+
+
         TableColumn dateColumn = new TableColumn("Date");
         TableColumn timeColumn = new TableColumn("Time");
         TableColumn dataColumn = new TableColumn("Data");
@@ -63,6 +73,8 @@ public class TabFactory {
 
         tv.setItems(FXCollections.observableArrayList(datters.getDataPoints()));
         tv.getColumns().addAll(dateColumn, timeColumn, dataColumn);
+
+
 
         rv = Optional.of(tabby);
 

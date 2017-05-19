@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -77,8 +78,7 @@ public class Controller {
         extensions.add("*.log");
 
         //Display and get file chosen, pass on to function who reads the file.
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text files", extensions);
-        fileChooser.setSelectedExtensionFilter(filter);
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.log"));
         fileChooser.setTitle("Select Macro Log File");
         File file = fileChooser.showOpenDialog(mainBorderPane.getScene().getWindow());
 
@@ -164,16 +164,17 @@ public class Controller {
             {
                 List<String> tempArr = new ArrayList<>();
                 LocalTime lt = LocalTime.MIN;
+                String time = "";
 
                 // Parse data, group 1 matches the timestamp,
                 // Group 2 matches the name,
                 // Group 3 matches the Data nodes, I.E., what action it is, etc.
-                lt = lt.parse(matcher.group(1));
+                time = lt.parse(matcher.group(1)).format(DateTimeFormatter.ISO_LOCAL_TIME);
                 tempArr.addAll(Arrays.asList(matcher.group(3).split(", ")));
                 List<DataNode> outList = parseAllDataNodes(tempArr);
 
                 //Create the new DataPoint, add it to the current data management model
-                DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), lt, matcher.group(2), outList);
+                DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), time, matcher.group(2), outList);
                 dmm.addItem(newDataPoint);
 //                System.out.println(newDataPoint.toString());
             }
@@ -187,11 +188,11 @@ public class Controller {
 
 
                 if(matcher.find()) {
-                    lt = lt.parse(matcher.group(1));
-                    tempArr.addAll(Arrays.asList(matcher.group(3).split(", ")));
+                    String time;
+                    time = lt.parse(matcher.group(1)).format(DateTimeFormatter.ISO_LOCAL_TIME);                    tempArr.addAll(Arrays.asList(matcher.group(3).split(", ")));
                     List<DataNode> outList = parseAllDataNodes(tempArr);
 
-                    DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), lt, matcher.group(2), outList);
+                    DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), time, matcher.group(2), outList);
                     dmm.addItem(newDataPoint);
                 }
                 else {
@@ -237,7 +238,7 @@ public class Controller {
 
         else if(s.contains("Action string ")) {
             if(s.length() == 14) {
-                returnVal.add(new DataNode(s, "NONE"));
+                returnVal.add(new DataNode("Action string", "Stopping"));
             }
             else {
                 String actionString = s.substring(14);
