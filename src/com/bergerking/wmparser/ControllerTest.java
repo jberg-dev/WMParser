@@ -41,7 +41,7 @@ public class ControllerTest {
     @Test
     public void loadSelectedFile_predetermined_file() throws Exception {
         List list = controller.loadSelectedFile(testFile);
-        assertEquals(1247, list.size());
+        assertEquals(3408, list.size());
 
     }
 

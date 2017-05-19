@@ -13,6 +13,7 @@ import java.util.*;
 public class DataHolder {
     private String name;
     private ArrayList<DataPoint> dp;
+    private int count;
 
     public DataHolder(String name) {
         this.name = name;
@@ -32,10 +33,10 @@ public class DataHolder {
     }
 
     public Map<String, Integer> getUniqueDataNodesAndCount( boolean getUniqueKey, boolean getKeyAndVal ) {
-
-        Map<String, Integer> map = new TreeMap<>();
+        this.count = 0;
+        Map<String, Integer> map = new HashMap<>();
         ArrayList<String> tempArr = new ArrayList<>();
-        TreeMap<String, Integer> rv = new TreeMap<>();
+        HashMap<String, Integer> rv = new HashMap<>();
 
         // get all tokens, add to temporary array
         dp.stream().forEach(x -> x.getTokens().stream().forEach(y -> tempArr.add(y.getKey())));
@@ -56,21 +57,21 @@ public class DataHolder {
         // if you want the key+value pair as a string, summed up and counted, add them to the returnval
         if(getKeyAndVal){
 
-            TreeMap<String, Integer> tempMap = new TreeMap<>();
+            HashMap<String, Integer> tempMap = new HashMap<>();
 
             /**
              * For each key in the map, iterate over every token in the class' data point storage.
-             * With each token, filter to match the current key from the map.
-             * For every match, add to the temporary map, and count it.
+             * For every token, add to the temporary map, and count it.
              */
 
             map.keySet().iterator()
                     .forEachRemaining(it -> dp.stream()
                                     .forEach(x -> x.getTokens()
                                             .stream()
-                                            .forEach(y -> addToMap(y.getKey(), y.getValue(), tempMap))));
+                                            .filter(matches -> matches.getKey().contains(it))
+                                                    .forEach(y -> addToMap(y.getKey(), y.getValue(), tempMap))));
 
-
+            System.out.println(this.count);
             rv.putAll(tempMap);
         }
 
@@ -79,7 +80,7 @@ public class DataHolder {
 
     private void addToMap(String s1, String s2, Map<String, Integer> hm) {
         String temp = s1 + ", " + s2;
-
+        count++;
         Integer count = hm.get(temp);
         hm.put(temp, (count == null) ? 1 : count + 1);
     }

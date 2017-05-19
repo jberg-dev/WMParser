@@ -1,13 +1,9 @@
 package com.bergerking.wmparser;
 
-import com.bergerking.wmparser.DataModel.DataHolder;
 import com.bergerking.wmparser.DataModel.DataManagementModel;
 import com.bergerking.wmparser.DataModel.DataNode;
 import com.bergerking.wmparser.DataModel.DataPoint;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
@@ -252,7 +248,7 @@ public class Controller {
         else if(s.contains("action")) {
             String[] out = s.split(" ");
 
-            if(out.length == 2) returnVal.add(new DataNode(out[0], out[1]));
+            if(out.length == 2) returnVal.add(new DataNode("actionNumber", out[1]));
             else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
 
         }
