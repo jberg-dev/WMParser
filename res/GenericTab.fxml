@@ -10,7 +10,6 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:id="TabLayout"
-            fx:controller="com.bergerking.wmparser.Controller"
             prefHeight="Infinity" prefWidth="Infinity">
     <center>
         <HBox>

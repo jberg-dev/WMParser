@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="WMParser:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/WMParser_jar</output-path>
+    <root id="archive" name="WMParser.jar">
+      <element id="module-output" name="WMParser" />
+      <element id="file-copy" path="$PROJECT_DIR$/Sample.txt" />
+    </root>
+  </artifact>
+</component>

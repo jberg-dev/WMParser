@@ -25,6 +25,6 @@
     </center>
 
     <bottom>
-        <Label fx:id="statusLabel" prefWidth="Infinity" />
+        <Label fx:id="statusLabel" prefWidth="800" />
     </bottom>
 </BorderPane>

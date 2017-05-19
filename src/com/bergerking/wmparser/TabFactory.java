@@ -3,6 +3,7 @@ package com.bergerking.wmparser;
 import com.bergerking.wmparser.DataModel.DataHolder;
 import com.bergerking.wmparser.DataModel.DataPoint;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
@@ -10,6 +11,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Bergerking on 2017-05-14.
@@ -82,6 +85,7 @@ public class TabFactory {
                 String[] matchThis = node.getValue().split(": ");
                 if(matchThis.length == 2)
                 {
+
                     if(s.contains(matchThis[0])) {
                         CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem(s);
                         newLeaf.setSelected(true);

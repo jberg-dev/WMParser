@@ -10,6 +10,7 @@ public class DataNode {
 
     private String key = "";
     private String value = "";
+    private boolean visible = true;
 
 
     public DataNode() {
@@ -37,6 +38,10 @@ public class DataNode {
     public void setValue(String value) {
         this.value = value;
     }
+
+    public void setInvisible() { this.visible = false; };
+    public void setVisible() { this.visible = true; }
+    public boolean getVisibility() { return this.visible; }
 
     @Override
     public String toString() {

@@ -44,6 +44,9 @@ public class Controller {
     @FXML
     private BorderPane mainBorderPane;
 
+    @FXML
+    private Label statusLabel;
+
     private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
     public static final boolean testing = true;
     public DataManagementModel dmm = new DataManagementModel();
@@ -55,6 +58,8 @@ public class Controller {
 
         if(testing) LOGGER.setLevel(Level.FINEST);
         else LOGGER.setLevel(Level.FINE);
+
+        statusLabel.setText("Greetings!");
 
 
     }
@@ -175,28 +180,28 @@ public class Controller {
 //                System.out.println(newDataPoint.toString());
             }
 
+//            else {
+//                List<String> tempArr = new ArrayList<>();
+//                LocalTime lt = LocalTime.MIN;
+//
+//                pattern = Pattern.compile("^\\[(.+?)\\]\\s<+([a-zA-Z]{3,})>+\\s(.+)$");
+//                matcher = pattern.matcher(line);
+//
+//
+//                if(matcher.find()) {
+//                    String time;
+//                    time = lt.parse(matcher.group(1)).format(DateTimeFormatter.ISO_LOCAL_TIME);                    tempArr.addAll(Arrays.asList(matcher.group(3).split(", ")));
+//                    List<DataNode> outList = parseAllDataNodes(tempArr);
+//
+//                    DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), time, matcher.group(2), outList);
+//                    dmm.addItem(newDataPoint);
+//                }
             else {
-                List<String> tempArr = new ArrayList<>();
-                LocalTime lt = LocalTime.MIN;
-
-                pattern = Pattern.compile("^\\[(.+?)\\]\\s<+([a-zA-Z]{3,})>+\\s(.+)$");
-                matcher = pattern.matcher(line);
-
-
-                if(matcher.find()) {
-                    String time;
-                    time = lt.parse(matcher.group(1)).format(DateTimeFormatter.ISO_LOCAL_TIME);                    tempArr.addAll(Arrays.asList(matcher.group(3).split(", ")));
-                    List<DataNode> outList = parseAllDataNodes(tempArr);
-
-                    DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), time, matcher.group(2), outList);
-                    dmm.addItem(newDataPoint);
-                }
-                else {
-                    if(testing) System.out.println("Failed to parse line: " + line);
-                    else LOGGER.log(Level.WARNING, "Failed to parse message after '[' : " + line);
-                }
-
+                if(testing) System.out.println("Failed to parse line: " + line);
+                else LOGGER.log(Level.WARNING, "Failed to parse message after '[' : " + line);
             }
+
+
         }
         else if(line.charAt(0) == 'L') {
             System.out.println(line);
@@ -234,7 +239,7 @@ public class Controller {
 
         else if(s.contains("Action string ")) {
             if(s.length() == 14) {
-                returnVal.add(new DataNode("Action string", "Stopping"));
+                returnVal.add(new DataNode("Action string", "Natural end of action"));
             }
             else {
                 String actionString = s.substring(14);
@@ -319,15 +324,24 @@ public class Controller {
 
     @FXML
     public void Test() {
-        final String testFileName = "Sample.txt";
+        final String testFileName = "/Sample.txt";
         Path p = Paths.get(testFileName);
         List testFileArray = new ArrayList();
+//
+//        try {
+//            Files.lines(p).forEach(s -> testFileArray.add(s));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
+
+        ParserMain pm = new ParserMain();
         try {
-            Files.lines(p).forEach(s -> testFileArray.add(s));
-        } catch (IOException e) {
+            testFileArray = pm.getSampleTextFile();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         parseInput(testFileArray);
 
