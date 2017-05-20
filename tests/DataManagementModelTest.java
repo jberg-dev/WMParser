@@ -1,5 +1,8 @@
-package com.bergerking.wmparser.DataModel;
+package tests;
 
+import com.bergerking.wmparser.DataModel.DataHolder;
+import com.bergerking.wmparser.DataModel.DataManagementModel;
+import com.bergerking.wmparser.DataModel.DataPoint;
 import org.junit.Before;
 import org.junit.Test;
 

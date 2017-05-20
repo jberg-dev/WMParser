@@ -4,6 +4,7 @@
     <root id="archive" name="WMParser.jar">
       <element id="module-output" name="WMParser" />
       <element id="dir-copy" path="$PROJECT_DIR$/res" />
+      <element id="file-copy" path="$PROJECT_DIR$/live/config.properties" />
     </root>
   </artifact>
 </component>

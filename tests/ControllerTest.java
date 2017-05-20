@@ -1,5 +1,7 @@
-package com.bergerking.wmparser;
+package tests;
 
+import com.bergerking.wmparser.Controller;
+import com.bergerking.wmparser.TabFactory;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,33 +47,8 @@ public class ControllerTest {
     }
 
     @Test
-    public void loadSelectedFile_predetermined_file() throws Exception {
-        List list = controller.loadSelectedFile(testFile);
-        assertEquals(3408, list.size());
-
-    }
-
-    @Test
     public void loadSelectedFile_expect_error() throws  Exception {
-        assertNull(controller.loadSelectedFile(null));
-    }
-
-    @Test
-    public void parseInput() throws Exception {
-        controller.parseInput(testFileArray);
-        assertTrue(true);
-    }
-
-    @Test
-    public void tabFactory() throws Exception {
-        //need to initialize a JFXPanel for this test to even work. do nothing with it.
-        JFXPanel p = new JFXPanel();
-
-
-        controller.parseInput(testFileArray);
-        TabFactory tf = new TabFactory();
-        tf.manufactureTab(controller.getDmm().getDataHolderForName("Valerie").get());
-
+        assertNull(controller.loadFile(null));
     }
 
 }

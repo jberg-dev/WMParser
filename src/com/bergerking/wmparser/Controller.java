@@ -4,6 +4,8 @@ import com.bergerking.wmparser.DataModel.DataManagementModel;
 import com.bergerking.wmparser.DataModel.DataNode;
 import com.bergerking.wmparser.DataModel.DataPoint;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,14 +15,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -53,90 +51,42 @@ public class Controller {
     @FXML
     private Label statusLabel;
 
+    private StringProperty stringProperty;
     private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
-    public static final boolean testing = true;
-    public DataManagementModel dmm = new DataManagementModel();
+    public static boolean testing;
+    private DataManagementModel dmm = new DataManagementModel();
 
     public void initialize(){
-        ConsoleHandler ch = new ConsoleHandler();
-        LOGGER.addHandler(ch);
-        ch.setLevel(Level.ALL);
 
-        if(testing) LOGGER.setLevel(Level.FINEST);
-        else LOGGER.setLevel(Level.FINE);
+        //Load properties file
+        Properties prop = new Properties();
+        InputStream input = null;
 
-        statusLabel.setText("Greetings!");
+        try {
 
-        Tab mainTab = new Tab();
-
-
-
-        Task<Node> loadTask = new Task<Node>() {
-            @Override
-            public Node call() throws IOException {
-                FXMLLoader loader = new FXMLLoader();
-                Node root = loader.load(getClass().getClassLoader().getResource("MainTab.fxml"));
-                return root ;
-            }
-        };
-
-        loadTask.setOnSucceeded(e -> {
-
-            Node main  = loadTask.getValue();
-
-            mainTab.setContent(main);
-            mainTab.setText("[Main Tab]");
-            mainTab.setId("Main");
-            mainTab.setClosable(false);
-
-
-            System.out.println("thread complete");
-        });
-
-        loadTask.setOnFailed(e -> loadTask.getException().printStackTrace());
-
-        Thread thread = new Thread(loadTask);
-        Platform.runLater(thread);
-
-
-        Node n = mainTab.getContent().lookup("#LogRoll");
-        if(n != null)
-        {
-            class Console extends OutputStream {
-                private TextArea console;
-
-                public Console(TextArea console) {
-                    this.console = console;
-                }
-
-                public void appendText(String valueOf) {
-                    Platform.runLater(() -> console.appendText(valueOf));
-                }
-
-                public void write(int b) throws IOException {
-                    appendText(String.valueOf((char)b));
-                }
-
+            String filename = "config.properties";
+            input = Controller.class.getClassLoader().getResourceAsStream(filename);
+            if(input==null){
+                System.out.println("Sorry, unable to find " + filename);
+                return;
             }
 
-            TextArea console = (TextArea) n;
-            PrintStream ps = new PrintStream(new Console(console));
-            System.setOut(ps);
-            System.setErr(ps);
-            SimpleFormatter fmt = new SimpleFormatter();
-            StreamHandler sh = new StreamHandler(System.out, fmt);
-            LOGGER.addHandler(sh);
+            prop.load(input);
+            testing = Boolean.parseBoolean(prop.getProperty("testing"));
 
-            mainTabPane.getTabs().add(mainTab);
-
-            LOGGER.log(Level.INFO, "Logger Initialized");
-
-
-        }
-        else {
-            LOGGER.log(Level.WARNING, "Could not find tag #LogRoll in MainTabPane");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if(input != null){
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
+        bindStatusLabel();
 
     }
 
@@ -145,36 +95,42 @@ public class Controller {
         Generic file selection function.
      */
     @FXML
-    public void loadFile() {
-        //Make file chooser
-        FileChooser fileChooser = new FileChooser();
+    public void loadFile(){
+        loadFile(null);
+    }
 
-        //Filters
-        List<String> extensions = new LinkedList<String>();
-        extensions.add("*.txt");
-        extensions.add("*.log");
+    public void bindStatusLabel() {
+        stringProperty = new SimpleStringProperty("Welcome to WMacroParser");
+        statusLabel.textProperty().bind(stringProperty);
+    }
 
-        //Display and get file chosen, pass on to function who reads the file.
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.log"));
-        fileChooser.setTitle("Select Macro Log File");
-        File file = fileChooser.showOpenDialog(mainBorderPane.getScene().getWindow());
+    public void loadFile(File file) {
 
-        //Handle the file and add to view
+        if(file == null) {
+            //Make file chooser
+            FileChooser fileChooser = new FileChooser();
+
+            //Display and get file chosen, pass on to function who reads the file.
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.log"));
+            fileChooser.setTitle("Select Macro Log File");
+            file = fileChooser.showOpenDialog(mainBorderPane.getScene().getWindow());
+
+            //Handle the file and add to view
+        }
+
         if(file != null) {
-            if(!testing) LOGGER.log(Level.FINEST, "Loading file from " + file.getAbsolutePath());
+            if(!testing) LOGGER.log(Level.INFO, "Loading file from " + file.getAbsolutePath());
             parseInput(loadSelectedFile(file));
             addNewTab();
+
         }
         else LOGGER.log(Level.SEVERE,"File was NULL!");
-
-
-
 
     }
     /*
         Read file passed in, return set of lines.
      */
-    public List<String> loadSelectedFile(File file){
+    private List<String> loadSelectedFile(File file){
 
         List<String> input = new ArrayList<>();
 
@@ -196,9 +152,8 @@ public class Controller {
     }
 
     /*
-        Input list of strings, get out magical list of itemization.
+        Add tab to window.
      */
-
     private void addNewTab() {
         Optional<ArrayList<String>> o = dmm.getAllHolders();
         TabFactory tf = new TabFactory();
@@ -214,28 +169,61 @@ public class Controller {
                     Optional<Tab> t = tf.manufactureTab(dmm.getDataHolderForName(al.get(i)).get());
 
                     if(t.isPresent()) mainTabPane.getTabs().add(t.get());
+                    else LOGGER.log(Level.WARNING, "failed to produce tab for" + al.get(iterate));
                 }
-                else if(testing) System.out.println("Did not attempt to create new tab for: " + al.get(i));
+                else System.out.println("Did not attempt to create new tab for: " + al.get(i));
 
-                else LOGGER.log(Level.WARNING, "Failed to create tab");
             }
         }
-        else System.out.println("O was not present");
+        else LOGGER.log(Level.FINE, "Could not get a list of holders from DMM - Optional not present!");
     }
-    public void parseInput(List<String> list) {
-        System.out.println("Size of input list: " + list.size());
-        for(String s : list) {
-            parseLine(s);
 
-            try {
-                TimeUnit.MICROSECONDS.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
+    /*
+        Input list of strings, get out magical list of itemization.
+    */
+    private void parseInput(List<String> list) {
+        DataManagementModel moo = this.dmm;
+
+        Task<Void> task = new Task<Void>() {
+            @Override
+            public Void call() throws Exception {
+                int i = 0;
+                int size = list.size();
+
+                for(String s : list) {
+                    parseLine(s, moo);
+                    i++;
+                    updateMessage("Read "+ i +"/"+ size);
+                    try {
+                        TimeUnit.MICROSECONDS.sleep(5);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return null ;
             }
-        }
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                Platform.runLater(() -> addNewTab());
+                System.out.println("Done!");
+                updateMessage("");
+            }
+        };
+        task.messageProperty().addListener((obs, oldMessage, newMessage) -> stringProperty.set(newMessage));
+
+        new Thread(task).start();
+
+
+
+
     }
 
-    private void parseLine(String line){
+    /*
+        Parse a line, separate it out into all the components, add it as a datapoint.
+     */
+    private void parseLine(String line, DataManagementModel moo){
 
         if(line.charAt(0) == '[') {
 
@@ -257,8 +245,8 @@ public class Controller {
                 List<DataNode> outList = parseAllDataNodes(tempArr);
 
                 //Create the new DataPoint, add it to the current data management model
-                DataPoint newDataPoint = new DataPoint(dmm.getDateHolder(), time, matcher.group(2), outList);
-                dmm.addItem(newDataPoint);
+                DataPoint newDataPoint = new DataPoint(moo.getDateHolder(), time, matcher.group(2), outList);
+                moo.addItem(newDataPoint);
 //                System.out.println(newDataPoint.toString());
             }
 
@@ -279,8 +267,7 @@ public class Controller {
 //                    dmm.addItem(newDataPoint);
 //                }
             else {
-                if(testing) System.out.println("Failed to parse line: " + line);
-                else LOGGER.log(Level.WARNING, "Failed to parse message after '[' : " + line);
+                System.out.println("Failed to parse line: " + line);
             }
 
 
@@ -289,9 +276,9 @@ public class Controller {
             Pattern pattern = Pattern.compile("(^.*)(\\d{4}-\\d{2}-\\d{2})");
             Matcher matcher = pattern.matcher(line);
             if(matcher.find()) {
-                dmm.setDateHolder(LocalDate.parse(matcher.group(2)));
+                moo.setDateHolder(LocalDate.parse(matcher.group(2)));
             }
-            else LOGGER.log(Level.WARNING, "No Match for: " + line);
+            else LOGGER.log(Level.INFO, "No Match for: " + line);
         }
         else LOGGER.log(Level.WARNING, "Malformed line: " + line);
     }
@@ -299,15 +286,15 @@ public class Controller {
     /*
         Parse data node strings into real data nodes.
      */
-    public List<DataNode> parseAllDataNodes(List<String> l) {
-        List rv = new ArrayList();
+    private ArrayList<DataNode> parseAllDataNodes(List<String> allDataNodes) {
+        ArrayList<DataNode> rv = new ArrayList<>();
 
-        l.stream().forEach(x -> parseDataNode(x, rv));
+        allDataNodes.forEach(x -> parseDataNode(x, rv));
 
         return rv;
     }
 
-    public void parseDataNode(String s, List returnVal) {
+    private void parseDataNode(String s, ArrayList<DataNode> returnVal) {
 
         if(s.contains("=")) {
            String[] out =  s.split("=");
@@ -402,28 +389,43 @@ public class Controller {
         else return null;
     }
 
+
+    /*
+        Demo function, and easy test of functionality.
+     */
     @FXML
     public void Test() {
         List testFileArray = new ArrayList();
 
-        Path p = null;
-        LOGGER.log(Level.INFO, "Starting to read the sample log.");
-        try {
-            p = Paths.get(this.getClass().getResource("/Sample.txt").toURI());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Reading from the sample log....");
 
         try {
-            Files.lines(p).forEach(s -> testFileArray.add(s));
+
+            final Path path;
+
+
+            if(!testing) {
+                URI uri = Controller.class.getClass().getResource("/Sample.txt").toURI();
+                final Map<String, String> env = new HashMap<>();
+                final String[] array = uri.toString().split("!");
+                final FileSystem fs = FileSystems.newFileSystem(URI.create(array[0]), env);
+                path = fs.getPath(array[1]);
+            }
+            else {
+                path = Paths.get(Controller.class.getClass().getResource("/Sample.txt").toURI());
+            }
+            Files.lines(path).forEach(s -> testFileArray.add(s));
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        System.out.println("Finished reading the sample log, it was "+ testFileArray.size() + " lines long");
 
         parseInput(testFileArray);
 
-        addNewTab();
-        LOGGER.log(Level.INFO, "Finished reading the sample log.");
+
     }
 }

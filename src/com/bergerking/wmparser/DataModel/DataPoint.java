@@ -43,6 +43,7 @@ public class DataPoint {
 
     public void toggleVisible() { this.visible = !this.visible; }
 
+    public void addToken(DataNode n) { this.tokens.add(n); }
     public List<DataNode> getTokens() {
         return this.tokens;
     }

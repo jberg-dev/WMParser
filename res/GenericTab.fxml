@@ -7,6 +7,9 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:id="TabLayout"
@@ -15,7 +18,14 @@
         <HBox>
             <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" HBox.hgrow="ALWAYS"></StackPane>
             <VBox HBox.hgrow="ALWAYS" >
-                <Label fx:id="Graph" prefWidth="600" prefHeight="200"></Label>
+                <BarChart fx:id="Graph" alternativeColumnFillVisible="true" alternativeRowFillVisible="true" animated="false" barGap="2.0" categoryGap="5.0" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" legendVisible="false" prefHeight="-1.0" prefWidth="-1.0" verticalGridLinesVisible="true" verticalZeroLineVisible="true">
+                    <xAxis>
+                        <CategoryAxis id="categoryAxis" animated="true" side="BOTTOM" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis id="numberAxis" animated="false" autoRanging="false" side="LEFT" />
+                    </yAxis>
+                </BarChart>
                 <TableView fx:id="RollingLog"
                            prefWidth="600"
                            VBox.vgrow="ALWAYS"

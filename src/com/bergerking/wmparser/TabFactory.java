@@ -6,6 +6,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -38,7 +41,7 @@ public class TabFactory {
         }
 
         tabby.setContent(main);
-
+        datters.calculateTimes();
         tabby.setId(datters.getName());
         tabby.setText(datters.getName());
 
@@ -54,7 +57,7 @@ public class TabFactory {
         treeView.setEditable(true);
         treeView.setShowRoot(false);
 
-        Label lab = (Label) graph;
+        BarChart bc = (BarChart) graph;
         TableView tv = (TableView) rollingLog;
         StackPane lv = (StackPane) listofActions;
 
@@ -119,12 +122,18 @@ public class TabFactory {
         tv.setEditable(true);
         tv.getColumns().addAll(dateColumn, timeColumn, dataColumn);
 
+        //Barchart
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        bc.setTitle("Summary");
+        bc.getXAxis().setAutoRanging(true);
+
+        bc.getData().addAll(datters.getSeriesOfTimes());
+        bc.getXAxis().setAutoRanging(true);
+        bc.getYAxis().setAutoRanging(true);
 
 
         rv = Optional.of(tabby);
-
-
-
         return rv;
     }
 }
