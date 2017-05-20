@@ -13,7 +13,6 @@ import java.util.*;
 public class DataHolder {
     private String name;
     private ArrayList<DataPoint> dp;
-    private int count;
 
     public DataHolder(String name) {
         this.name = name;
@@ -33,7 +32,6 @@ public class DataHolder {
     }
 
     public Map<String, Integer> getUniqueDataNodesAndCount( boolean getUniqueKey, boolean getKeyAndVal ) {
-        this.count = 0;
         Map<String, Integer> map = new HashMap<>();
         ArrayList<String> tempArr = new ArrayList<>();
         HashMap<String, Integer> rv = new HashMap<>();
@@ -71,7 +69,6 @@ public class DataHolder {
                                             .filter(matches -> matches.getKey().contains(it))
                                                     .forEach(y -> addToMap(y.getKey(), y.getValue(), tempMap))));
 
-            System.out.println(this.count);
             rv.putAll(tempMap);
         }
 
@@ -80,7 +77,6 @@ public class DataHolder {
 
     private void addToMap(String s1, String s2, Map<String, Integer> hm) {
         String temp = s1 + ", " + s2;
-        count++;
         Integer count = hm.get(temp);
         hm.put(temp, (count == null) ? 1 : count + 1);
     }

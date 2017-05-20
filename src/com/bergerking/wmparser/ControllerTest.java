@@ -20,17 +20,23 @@ import static org.junit.Assert.*;
 public class ControllerTest {
 
     Controller controller;
-    final String testFileName = "Sample.txt";
-    Path p = Paths.get(testFileName);
+    Path p;
     List testFileArray = new ArrayList();
     File testFile;
 
     @Before
     public void setUp() throws Exception {
 
+        try {
+            p = Paths.get(this.getClass().getResource("/Sample.txt").toURI());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
         //load test file to use for manipulations.
         try {
-            testFile = new File(testFileName);
+            testFile = p.toFile();
             Files.lines(p).forEach(s -> testFileArray.add(s));
         } catch (IOException e) {
             e.printStackTrace();

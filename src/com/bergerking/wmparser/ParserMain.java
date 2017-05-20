@@ -32,26 +32,15 @@ public class ParserMain extends Application {
 
     public static void main(String[] args) {
 
-
-
         launch(args);
 
     }
 
-    public Node getGenericTab() throws Exception {
-        return FXMLLoader.load(getClass().getClassLoader().getResource("GenericTab.fxml"));
-    }
 
     public ArrayList<String> getSampleTextFile() throws Exception {
         ArrayList<String> rv = new ArrayList<>();
 
-        Path p = Paths.get(this.getClass().getResource("/Sample.txt").toURI());
 
-        try {
-            Files.lines(p).forEach(s -> rv.add(s));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         return rv;
     }

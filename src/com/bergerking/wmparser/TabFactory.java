@@ -4,12 +4,14 @@ import com.bergerking.wmparser.DataModel.DataHolder;
 import com.bergerking.wmparser.DataModel.DataPoint;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,15 +29,15 @@ public class TabFactory {
         Optional<Tab> rv = Optional.empty();
         Tab tabby = new Tab();
 
-        //This is fucking ugly, but I spent 8+ hours trying to get it to work
-        //to only find this workaround. deal with it.
-        ParserMain pm = new ParserMain();
+        Node main = null;
 
         try {
-            tabby.setContent(pm.getGenericTab());
-        } catch (Exception e) {
+            main = FXMLLoader.load(getClass().getClassLoader().getResource("GenericTab.fxml"));
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+        tabby.setContent(main);
 
         tabby.setId(datters.getName());
         tabby.setText(datters.getName());

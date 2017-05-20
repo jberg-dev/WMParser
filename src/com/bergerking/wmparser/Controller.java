@@ -3,7 +3,11 @@ package com.bergerking.wmparser;
 import com.bergerking.wmparser.DataModel.DataManagementModel;
 import com.bergerking.wmparser.DataModel.DataNode;
 import com.bergerking.wmparser.DataModel.DataPoint;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
@@ -11,6 +15,9 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,9 +25,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +66,76 @@ public class Controller {
         else LOGGER.setLevel(Level.FINE);
 
         statusLabel.setText("Greetings!");
+
+        Tab mainTab = new Tab();
+
+
+
+        Task<Node> loadTask = new Task<Node>() {
+            @Override
+            public Node call() throws IOException {
+                FXMLLoader loader = new FXMLLoader();
+                Node root = loader.load(getClass().getClassLoader().getResource("MainTab.fxml"));
+                return root ;
+            }
+        };
+
+        loadTask.setOnSucceeded(e -> {
+
+            Node main  = loadTask.getValue();
+
+            mainTab.setContent(main);
+            mainTab.setText("[Main Tab]");
+            mainTab.setId("Main");
+            mainTab.setClosable(false);
+
+
+            System.out.println("thread complete");
+        });
+
+        loadTask.setOnFailed(e -> loadTask.getException().printStackTrace());
+
+        Thread thread = new Thread(loadTask);
+        Platform.runLater(thread);
+
+
+        Node n = mainTab.getContent().lookup("#LogRoll");
+        if(n != null)
+        {
+            class Console extends OutputStream {
+                private TextArea console;
+
+                public Console(TextArea console) {
+                    this.console = console;
+                }
+
+                public void appendText(String valueOf) {
+                    Platform.runLater(() -> console.appendText(valueOf));
+                }
+
+                public void write(int b) throws IOException {
+                    appendText(String.valueOf((char)b));
+                }
+
+            }
+
+            TextArea console = (TextArea) n;
+            PrintStream ps = new PrintStream(new Console(console));
+            System.setOut(ps);
+            System.setErr(ps);
+            SimpleFormatter fmt = new SimpleFormatter();
+            StreamHandler sh = new StreamHandler(System.out, fmt);
+            LOGGER.addHandler(sh);
+
+            mainTabPane.getTabs().add(mainTab);
+
+            LOGGER.log(Level.INFO, "Logger Initialized");
+
+
+        }
+        else {
+            LOGGER.log(Level.WARNING, "Could not find tag #LogRoll in MainTabPane");
+        }
 
 
     }
@@ -147,9 +223,15 @@ public class Controller {
         else System.out.println("O was not present");
     }
     public void parseInput(List<String> list) {
-        System.out.println(list.size());
+        System.out.println("Size of input list: " + list.size());
         for(String s : list) {
             parseLine(s);
+
+            try {
+                TimeUnit.MICROSECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -204,11 +286,9 @@ public class Controller {
 
         }
         else if(line.charAt(0) == 'L') {
-            System.out.println(line);
             Pattern pattern = Pattern.compile("(^.*)(\\d{4}-\\d{2}-\\d{2})");
             Matcher matcher = pattern.matcher(line);
             if(matcher.find()) {
-                System.out.println(matcher.group(2));
                 dmm.setDateHolder(LocalDate.parse(matcher.group(2)));
             }
             else LOGGER.log(Level.WARNING, "No Match for: " + line);
@@ -324,21 +404,19 @@ public class Controller {
 
     @FXML
     public void Test() {
-        final String testFileName = "/Sample.txt";
-        Path p = Paths.get(testFileName);
         List testFileArray = new ArrayList();
-//
-//        try {
-//            Files.lines(p).forEach(s -> testFileArray.add(s));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
-
-        ParserMain pm = new ParserMain();
+        Path p = null;
+        LOGGER.log(Level.INFO, "Starting to read the sample log.");
         try {
-            testFileArray = pm.getSampleTextFile();
-        } catch (Exception e) {
+            p = Paths.get(this.getClass().getResource("/Sample.txt").toURI());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Files.lines(p).forEach(s -> testFileArray.add(s));
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -346,6 +424,6 @@ public class Controller {
         parseInput(testFileArray);
 
         addNewTab();
-
+        LOGGER.log(Level.INFO, "Finished reading the sample log.");
     }
 }

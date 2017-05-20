@@ -45,7 +45,10 @@ public class DataNode {
 
     @Override
     public String toString() {
-        return "(" + this.key +", "+ this.value + ")";
+
+        if(this.visible)return "(" + this.key +", "+ this.value + ")";
+        else return "";
+
     }
 
 }

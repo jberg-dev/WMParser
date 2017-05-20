@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="MainTab"
+            prefHeight="Infinity" prefWidth="Infinity">
+    <center>
+        <VBox>
+            <TextArea fx:id="LogRoll" HBox.hgrow="ALWAYS" editable="false" prefHeight="800"></TextArea>
+            <HBox VBox.vgrow="ALWAYS" prefHeight="80">
+
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
