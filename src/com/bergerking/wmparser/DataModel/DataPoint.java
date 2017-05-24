@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Bergerking on 2017-05-13.
@@ -16,7 +17,7 @@ public class DataPoint {
     private LocalDate date;
     private String timestamp;
     private String player;
-    private List tokens;
+    private List<DataNode> tokens;
     private Boolean visible;
 
     public DataPoint() {
@@ -69,6 +70,15 @@ public class DataPoint {
 
     public void setTokens(List<DataNode> tokens) {
         this.tokens = tokens;
+    }
+
+    public Optional<DataNode> getTokenAt(int index) {
+
+        if(index >= 0 && index < this.tokens.size()) {
+            return Optional.of(this.tokens.get(index));
+        }
+
+        return Optional.empty();
     }
 
     @Override

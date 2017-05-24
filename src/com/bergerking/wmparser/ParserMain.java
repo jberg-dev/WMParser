@@ -30,9 +30,14 @@ public class ParserMain extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/WMParser.fxml"));
 
-        Parent root = loader.load(getClass().getResource("/WMParser.fxml"));
+
+        Parent root = loader.load();
+        Scene mainStage = new Scene(root, 800, 500);
+        ((Controller) loader.getController()).setScene(mainStage);
+
+
 
 
         URL path;
@@ -51,8 +56,8 @@ public class ParserMain extends Application {
         }
 
 
-        primaryStage.setTitle("Wurm Macro Parser");
-        primaryStage.setScene(new Scene(root, 800, 500));
+        primaryStage.setTitle("Wurm Macro Parser [ALPHA 0.01]");
+        primaryStage.setScene(mainStage);
         primaryStage.show();
 
         mainTab.setContent(main);

@@ -46,9 +46,4 @@ public class ControllerTest {
         controller = new Controller();
     }
 
-    @Test
-    public void loadSelectedFile_expect_error() throws  Exception {
-        assertNull(controller.loadFile(null));
-    }
-
 }

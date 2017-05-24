@@ -13,7 +13,8 @@
         <MenuBar fx:id="menuBar">
             <Menu fx:id="File" text="File">
                 <MenuItem fx:id="Load" text="Load" onAction="#loadFile" />
-                <MenuItem fx:id="Test" text="Test" onAction="#Test"></MenuItem>
+                <MenuItem fx:id="Test" text="Test" onAction="#Test" />
+                <!--<MenuItem fx:id="TestDialog" text="Test Dialog" onAction="#TestDialog" />-->
                 <SeparatorMenuItem />
                 <MenuItem fx:id="Exit" text="Exit" onAction="#Exit" />
             </Menu>

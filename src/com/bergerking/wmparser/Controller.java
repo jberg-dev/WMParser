@@ -3,6 +3,7 @@ package com.bergerking.wmparser;
 import com.bergerking.wmparser.DataModel.DataManagementModel;
 import com.bergerking.wmparser.DataModel.DataNode;
 import com.bergerking.wmparser.DataModel.DataPoint;
+import com.sun.deploy.ui.ProgressDialog;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -10,10 +11,14 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 import java.io.*;
 import java.net.URI;
@@ -54,6 +59,7 @@ public class Controller {
     private StringProperty stringProperty;
     private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
     public static boolean testing;
+    private Scene scene;
     private DataManagementModel dmm = new DataManagementModel();
 
     public void initialize(){
@@ -87,6 +93,7 @@ public class Controller {
         }
 
         bindStatusLabel();
+
 
     }
 
@@ -193,15 +200,16 @@ public class Controller {
 
                 for(String s : list) {
                     parseLine(s, moo);
-                    i++;
+
                     updateMessage("Read "+ i +"/"+ size);
                     try {
                         TimeUnit.MICROSECONDS.sleep(5);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    i++;
                 }
-                return null ;
+                return null;
             }
             @Override
             protected void succeeded() {
@@ -384,11 +392,38 @@ public class Controller {
         s.close();
     }
 
+    public void setScene(Scene scene) { this.scene = scene; }
+
     public DataManagementModel getDmm() {
         if(testing) return this.dmm;
         else return null;
     }
 
+//    @FXML
+//    public void TestDialog() {
+//        ProgressDialog progDiag = new ProgressDialog();
+//
+//
+//
+//        Task<Boolean> task = new Task<Boolean>() {
+//            @Override public Void call() {
+//                // do your operation in here
+//                return null;
+//            }
+//        };
+//
+//        task.setOnRunning((e) -> progDiag.show());
+//        task.setOnSucceeded((e) -> {
+//            progDiag.hide();
+//            Boolean returnValue = task.get();
+//            // process return value again in JavaFX thread
+//        });
+//        task.setOnFailed((e) -> {
+//            // eventual error handling by catching exceptions from task.get()
+//        });
+//        new Thread(task).start();
+//
+//    }
 
     /*
         Demo function, and easy test of functionality.
@@ -398,6 +433,7 @@ public class Controller {
         List testFileArray = new ArrayList();
 
         System.out.println("Reading from the sample log....");
+
 
         try {
 
