@@ -2,6 +2,7 @@ package com.bergerking.wmparser.DataModel;
 
 import com.bergerking.wmparser.Controller;
 import com.sun.istack.internal.Nullable;
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 import javafx.scene.chart.XYChart;
 
 import java.time.LocalTime;
@@ -23,6 +24,8 @@ public class DataHolder {
     private HashMap<String, TreeSet<PairValue>> metaMap;
     private long lastAdded = 0L;
     private long lastCalculated = 0L;
+    private final static String NAME_OF_MACRO_TIME_STRING = "Seconds since last action";
+
 
     public DataHolder(String name) {
         this.name = name;
@@ -92,6 +95,7 @@ public class DataHolder {
             return;
         }
 
+
         TreeSet<PairValue> pv = metaMap.get("Received action number");
         if(pv != null) {
 
@@ -103,7 +107,7 @@ public class DataHolder {
                 if(lastTime != null) {
                     LocalTime tempTime = LocalTime.parse(d.getTimestamp());
                     long seconds = lastTime.until(tempTime, SECONDS);
-                    addTokenTo(val.getNodePlace(), new DataNode("Seconds since last action", Long.toString(seconds)));
+                    addTokenTo(val.getNodePlace(), new DataNode(NAME_OF_MACRO_TIME_STRING, Long.toString(seconds)));
                     lastTime = tempTime;
                 }
                 else lastTime = LocalTime.parse(d.getTimestamp());
@@ -153,7 +157,7 @@ public class DataHolder {
 
             HashMap<String, Integer> tempMap = new HashMap<>();
 
-            /**
+            /*
              * For each key in the map, iterate over every token in the class' data point storage.
              * For every token, add to the temporary map, and count it.
              */
@@ -186,14 +190,17 @@ public class DataHolder {
         returnValue.setName(this.name);
         int maxVal = 0;
         TreeMap<Integer, Integer> listOfNumbers = new TreeMap<>();
-
         //for each data point, if it has seconds since last action
-        for(DataPoint d : dp) {
-            Optional<DataNode> o = d.getTokens().stream().filter(x -> x.getKey().equals("Seconds since last action")).findFirst();
-            if(o.isPresent())
-            {
-                //add them to a list of numbers. if there are collisions, just count up the collision by one.
-                String val =  o.get().getValue();
+
+        TreeSet<PairValue> treeSet = metaMap.get(NAME_OF_MACRO_TIME_STRING);
+
+        if (treeSet != null)
+        {
+            for(PairValue p : treeSet) {
+
+                //dp (cached location of node with relevant info) -> get tokens ->
+                //get (cached location of point index with relevant info) -> get value
+                String val = dp.get(p.getNodePlace()).getTokens().get(p.getPointPlace()).getValue();
                 int parsed = Integer.parseInt(val);
                 if(parsed > maxVal) maxVal = parsed;
 
@@ -201,8 +208,18 @@ public class DataHolder {
                 listOfNumbers.put(parsed, (count == null) ? 1 : count + 1);
 
             }
-
         }
+        else{
+            Logger.getGlobal().log(Level.SEVERE, "Failed to locate the set of macro time stats, cannot build graphs!");
+            return null;
+        }
+
+        //add them to a list of numbers. if there are collisions, just count up the collision by one.
+
+
+
+
+
 
         //int i = 2 because the 0 and 1 second actions are, generally, ignorable. not elegant, needs future improvement.
         //if there is no result of listOfNumbers.get, and the next item in line after is null too, skip item.

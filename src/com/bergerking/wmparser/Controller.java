@@ -61,6 +61,8 @@ public class Controller {
     public static boolean testing;
     private Scene scene;
     private DataManagementModel dmm = new DataManagementModel();
+    private HashMap<String, Tab> tabMap = new HashMap();
+    private HashSet<String> recentlyUpdatedHolders = new HashSet<>();
 
     public void initialize(){
 
@@ -72,7 +74,7 @@ public class Controller {
 
             String filename = "config.properties";
             input = Controller.class.getClassLoader().getResourceAsStream(filename);
-            if(input==null){
+            if(input == null){
                 System.out.println("Sorry, unable to find " + filename);
                 return;
             }
@@ -128,7 +130,7 @@ public class Controller {
         if(file != null) {
             if(!testing) LOGGER.log(Level.INFO, "Loading file from " + file.getAbsolutePath());
             parseInput(loadSelectedFile(file));
-            addNewTab();
+            refreshTabs();
 
         }
         else LOGGER.log(Level.SEVERE,"File was NULL!");
@@ -161,8 +163,23 @@ public class Controller {
     /*
         Add tab to window.
      */
-    private void addNewTab() {
+    private boolean refreshTabs() {
+
+        Iterator<String> updated = recentlyUpdatedHolders.iterator();
+        while(updated.hasNext()) {
+            String next = updated.next();
+            Tab tempTab = tabMap.get(next);
+
+            if(tempTab != null){
+
+            }
+            else {
+
+            }
+        }
+
         Optional<ArrayList<String>> o = dmm.getAllHolders();
+
         TabFactory tf = new TabFactory();
 
         if(o.isPresent()) {
@@ -175,14 +192,25 @@ public class Controller {
                 if(!mainTabPane.getTabs().stream().anyMatch(x -> x.getId().equals(al.get(iterate)))) {
                     Optional<Tab> t = tf.manufactureTab(dmm.getDataHolderForName(al.get(i)).get());
 
-                    if(t.isPresent()) mainTabPane.getTabs().add(t.get());
-                    else LOGGER.log(Level.WARNING, "failed to produce tab for" + al.get(iterate));
+                    if(t.isPresent()) {
+                        mainTabPane.getTabs().add(t.get());
+                        tabMap.put(t.get().getId(), t.get());
+                    }
+                    else LOGGER.log(Level.WARNING, "TabFactory failed to produce tab for" + al.get(iterate));
                 }
-                else System.out.println("Did not attempt to create new tab for: " + al.get(i));
+                else {
+                    LOGGER.log(Level.WARNING, "Found colliding tab not in the tabMap! " + al.get(i));
+                    return false;
+                }
 
             }
+
+            return true;
         }
-        else LOGGER.log(Level.FINE, "Could not get a list of holders from DMM - Optional not present!");
+        else {
+            LOGGER.log(Level.FINE, "Could not get a list of holders from DMM - Optional not present!");
+            return false;
+        }
     }
 
 
@@ -214,7 +242,7 @@ public class Controller {
             @Override
             protected void succeeded() {
                 super.succeeded();
-                Platform.runLater(() -> addNewTab());
+                Platform.runLater(() -> refreshTabs());
                 System.out.println("Done!");
                 updateMessage("");
             }

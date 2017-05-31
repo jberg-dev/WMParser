@@ -2,6 +2,7 @@ package com.bergerking.wmparser;
 
 import com.bergerking.wmparser.DataModel.DataHolder;
 import com.bergerking.wmparser.DataModel.DataPoint;
+import com.sun.javafx.UnmodifiableArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -45,29 +46,35 @@ public class TabFactory {
         tabby.setId(datters.getName());
         tabby.setText(datters.getName());
 
-        Node n = tabby.getContent();
+        setListOfActions(tabby, datters);
+        setRollingLog(tabby, datters);
+        updateBarChart(tabby, datters);
 
-        Node rollingLog = n.lookup("#RollingLog");
+        rv = Optional.of(tabby);
+        return rv;
+    }
+
+    public void setListOfActions(Tab t, DataHolder hudder) {
+
+        Node n = t.getContent();
         Node listofActions = n.lookup("#ListOfActions");
-        Node graph = n.lookup("#Graph");
+
+        StackPane lv = (StackPane) listofActions;
+
 
         TreeItem<String> rootNode = new TreeItem("Actions");
         rootNode.setExpanded(true);
         TreeView<String> treeView = new TreeView<>(rootNode);
+        treeView.setId("TreeView");
         treeView.setEditable(true);
         treeView.setShowRoot(false);
 
-        BarChart bc = (BarChart) graph;
-        TableView tv = (TableView) rollingLog;
-        StackPane lv = (StackPane) listofActions;
-
-        HashMap<String, Integer> hm = (HashMap) datters.getUniqueDataNodesAndCount(true, false);
+        HashMap<String, Integer> hm = (HashMap) hudder.getUniqueDataNodesAndCount(true, false);
         TreeMap<String, Integer> tree = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         tree.putAll(hm);
 
         ArrayList<String> al = new ArrayList<>();
         tree.forEach((x, y) -> al.add(x + ": " + y));
-
 
         treeView.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
 
@@ -77,63 +84,97 @@ public class TabFactory {
             rootNode.getChildren().add(childNode);
         }
 
-        HashMap<String, Integer> tempHash = (HashMap) datters.getUniqueDataNodesAndCount(false, true);
-        TreeMap<String, Integer> tempMap = new TreeMap<>(String .CASE_INSENSITIVE_ORDER);
-        ArrayList<String> tempArrayList = new ArrayList();
-        tempMap.putAll(tempHash);
-        tempMap.forEach((x, y) -> tempArrayList.add(x + ": " + y));
-
-        for(String s : tempArrayList) {
-            boolean found = false;
-            for(TreeItem<String> node : rootNode.getChildren()) {
-
-                String[] matchThis = node.getValue().split(": ");
-                if(matchThis.length == 2)
-                {
-
-                    if(s.contains(matchThis[0])) {
-                        CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem(s);
-                        newLeaf.setSelected(true);
-                        node.getChildren().add(newLeaf);
-                        found = true;
-                    }
-                }
-                else System.out.println("not match this! "+ node.getValue());
-
-
-            }
-            if(!found && Controller.testing) System.out.println("Couldn't find container for: "+ s);
-        }
-
-
         lv.getChildren().add(treeView);
 
+    }
+
+    public void setRollingLog(Tab t, DataHolder doot) {
+        Node n = t.getContent();
+
+        Node rollingLog = n.lookup("#RollingLog");
+        Node listofActions = n.lookup("#ListOfActions");
+
+        TableView tv = (TableView) rollingLog;
+        StackPane lv = (StackPane) listofActions;
+
+        Node foundNode = lv.lookup("#TreeView");
+
+        if(foundNode == null)
+        {
+            Logger.getGlobal().log(Level.SEVERE, "Never update rollinglog before you have updated list of actions");
+        }
+        else {
+            HashMap<String, Integer> tempHash = (HashMap) doot.getUniqueDataNodesAndCount(false, true);
+            TreeMap<String, Integer> tempMap = new TreeMap<>(String .CASE_INSENSITIVE_ORDER);
+            ArrayList<String> tempArrayList = new ArrayList();
+            tempMap.putAll(tempHash);
+            tempMap.forEach((x, y) -> tempArrayList.add(x + ": " + y));
+
+            TreeView<String> treeView = (TreeView<String>) foundNode;
+            TreeItem<String> rootNode = treeView.getRoot();
+
+            ObservableList<TreeItem<String>> obsL = rootNode.getChildren().sorted();
+
+            for(String s : tempArrayList) {
+                boolean found = false;
+                for(TreeItem<String> node : obsL) {
+
+                    String[] matchThis = node.getValue().split(": ");
+                    if(matchThis.length == 2)
+                    {
+
+                        if(s.contains(matchThis[0])) {
+                            CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem(s);
+                            newLeaf.setSelected(true);
+                            node.getChildren().add(newLeaf);
+                            found = true;
+                        }
+                    }
+                    else System.out.println("not match this! "+ node.getValue());
 
 
-        TableColumn dateColumn = new TableColumn("Date");
-        TableColumn timeColumn = new TableColumn("Time");
-        TableColumn dataColumn = new TableColumn("Data");
+                }
+                if(!found && Controller.testing) System.out.println("Couldn't find container for: "+ s);
 
-        dateColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("date"));
-        timeColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("timestamp"));
-        dataColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("tokens"));
 
-        tv.setItems(FXCollections.observableArrayList(datters.getDataPoints()));
-        tv.setEditable(true);
-        tv.getColumns().addAll(dateColumn, timeColumn, dataColumn);
+                TableColumn dateColumn = new TableColumn("Date");
+                TableColumn timeColumn = new TableColumn("Time");
+                TableColumn dataColumn = new TableColumn("Data");
+
+                dateColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("date"));
+                timeColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("timestamp"));
+                dataColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("tokens"));
+
+                ObservableList obs = FXCollections.observableArrayList(doot.getDataPoints());
+
+                tv.setItems(obs);
+                tv.setEditable(true);
+                tv.getColumns().addAll(dateColumn, timeColumn, dataColumn);
+                ;
+            }
+        }
+    }
+
+    public boolean updateBarChart(Tab t, DataHolder dock) {
+        Node n = t.getContent();
+        Node graph = n.lookup("#Graph");
+        BarChart bc = (BarChart) graph;
+
 
         //Barchart
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         bc.setTitle("Summary");
-        bc.getXAxis().setAutoRanging(true);
 
-        bc.getData().addAll(datters.getSeriesOfTimes());
+        bc.getData().addAll(dock.getSeriesOfTimes());
         bc.getXAxis().setAutoRanging(true);
         bc.getYAxis().setAutoRanging(true);
 
-
-        rv = Optional.of(tabby);
-        return rv;
+        return false;
     }
+
+
+
+
+
 }
