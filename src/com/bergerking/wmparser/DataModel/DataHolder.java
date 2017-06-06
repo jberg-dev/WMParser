@@ -1,5 +1,6 @@
 package com.bergerking.wmparser.DataModel;
 
+import com.bergerking.wmparser.ConstantStrings;
 import com.bergerking.wmparser.Controller;
 import com.sun.istack.internal.Nullable;
 import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
@@ -21,16 +22,14 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 public class DataHolder {
     private String name;
     private ArrayList<DataPoint> dp;
-    private HashMap<String, TreeSet<PairValue>> metaMap;
+    private HashMap<ConstantStrings, TreeSet<PairValue>> metaMap;
     private long lastAdded = 0L;
     private long lastCalculated = 0L;
-    private final static String NAME_OF_MACRO_TIME_STRING = "Seconds since last action";
-
 
     public DataHolder(String name) {
         this.name = name;
         this.dp = new ArrayList<>();
-        metaMap = new HashMap<String, TreeSet<PairValue>>();
+        metaMap = new HashMap<ConstantStrings, TreeSet<PairValue>>();
     }
 
     public boolean addDataPoint(DataPoint d) {
@@ -107,7 +106,7 @@ public class DataHolder {
                 if(lastTime != null) {
                     LocalTime tempTime = LocalTime.parse(d.getTimestamp());
                     long seconds = lastTime.until(tempTime, SECONDS);
-                    addTokenTo(val.getNodePlace(), new DataNode(NAME_OF_MACRO_TIME_STRING, Long.toString(seconds)));
+                    addTokenTo(val.getNodePlace(), new DataNode(ConstantStrings.NAME_OF_MACRO_TIME_STRING, Long.toString(seconds)));
                     lastTime = tempTime;
                 }
                 else lastTime = LocalTime.parse(d.getTimestamp());
@@ -132,7 +131,7 @@ public class DataHolder {
 
     public Map<String, Integer> getUniqueDataNodesAndCount( boolean getUniqueKey, boolean getKeyAndVal ) {
         Map<String, Integer> map = new HashMap<>();
-        ArrayList<String> tempArr = new ArrayList<>();
+        ArrayList<ConstantStrings> tempArr = new ArrayList<>();
         HashMap<String, Integer> rv = new HashMap<>();
 
         // get all tokens, add to temporary array
@@ -140,9 +139,9 @@ public class DataHolder {
                 .forEach(y -> tempArr.add(y.getKey())));
 
         // add all tokens you got to a hashmap, count collisions in the Integer
-        for (String temp : tempArr) {
+        for (ConstantStrings temp : tempArr) {
             Integer count = map.get(temp);
-            map.put(temp, (count == null) ? 1 : count + 1);
+            map.put(temp.string, (count == null) ? 1 : count + 1);
         }
 
 
@@ -166,7 +165,7 @@ public class DataHolder {
                     .forEachRemaining(it -> dp.stream()
                                     .forEach(x -> x.getTokens()
                                             .stream()
-                                            .filter(matches -> matches.getKey().contains(it))
+                                            .filter(matches -> matches.getKey().equals(it))
                                                     .forEach(y -> addToMap(y.getKey(), y.getValue(), tempMap))));
 
             rv.putAll(tempMap);
@@ -175,12 +174,12 @@ public class DataHolder {
         return rv;
     }
 
-    private void addToMap(String s1, String s2, Map<String, Integer> hm) {
+    private void addToMap(ConstantStrings s1, String s2, Map<String, Integer> hm) {
         //concatenate strings, attempt to get that string from the map.
         //If success, you get the integer value .get(key) returns value
         //else you get null.
         //Insert into the map, either as 1 as the first, or count up integer.
-        String temp = s1 + ", " + s2;
+        String temp = s1.string + ", " + s2;
         Integer count = hm.get(temp);
         hm.put(temp, (count == null) ? 1 : count + 1);
     }
@@ -192,7 +191,7 @@ public class DataHolder {
         TreeMap<Integer, Integer> listOfNumbers = new TreeMap<>();
         //for each data point, if it has seconds since last action
 
-        TreeSet<PairValue> treeSet = metaMap.get(NAME_OF_MACRO_TIME_STRING);
+        TreeSet<PairValue> treeSet = metaMap.get(ConstantStrings.NAME_OF_MACRO_TIME_STRING);
 
         if (treeSet != null)
         {

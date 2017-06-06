@@ -56,19 +56,23 @@ public class Controller {
     @FXML
     private Label statusLabel;
 
+    private static Pattern logPattern;
+
+
     private StringProperty stringProperty;
     private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
     public static boolean testing;
-    private Scene scene;
-    private DataManagementModel dmm = new DataManagementModel();
-    private HashMap<String, Tab> tabMap = new HashMap();
-    private HashSet<String> recentlyUpdatedHolders = new HashSet<>();
+    private static Scene scene;
+    private static DataManagementModel dmm = new DataManagementModel();
+    private static HashMap<String, Tab> tabMap = new HashMap();
+    private static HashSet<String> recentlyUpdatedHolders = new HashSet<>();
 
     public void initialize(){
 
         //Load properties file
         Properties prop = new Properties();
         InputStream input = null;
+        logPattern = Pattern.compile("^\\[(.+)\\]\\s([a-zA-Z]{3,})\\s\\[(.+)\\]$");
 
         try {
 
@@ -94,7 +98,7 @@ public class Controller {
             }
         }
 
-        bindStatusLabel();
+//        bindStatusLabel();
 
 
     }
@@ -139,7 +143,7 @@ public class Controller {
     /*
         Read file passed in, return set of lines.
      */
-    private List<String> loadSelectedFile(File file){
+    private static List<String> loadSelectedFile(File file){
 
         List<String> input = new ArrayList<>();
 
@@ -218,7 +222,7 @@ public class Controller {
         Input list of strings, get out magical list of itemization.
     */
     private void parseInput(List<String> list) {
-        DataManagementModel moo = this.dmm;
+        DataManagementModel moo = dmm;
 
         Task<Void> task = new Task<Void>() {
             @Override
@@ -247,7 +251,7 @@ public class Controller {
                 updateMessage("");
             }
         };
-        task.messageProperty().addListener((obs, oldMessage, newMessage) -> stringProperty.set(newMessage));
+        task.messageProperty().addListener((obs, oldMessage, newMessage) -> statusLabel.setText(newMessage));
 
         new Thread(task).start();
 
@@ -259,13 +263,12 @@ public class Controller {
     /*
         Parse a line, separate it out into all the components, add it as a datapoint.
      */
-    private void parseLine(String line, DataManagementModel moo){
+    private static void parseLine(String line, DataManagementModel moo){
 
         if(line.charAt(0) == '[') {
 
             // Note, regex is black magic.
-            Pattern pattern = Pattern.compile("^\\[(.+)\\]\\s([a-zA-Z]{3,})\\s\\[(.+)\\]$");
-            Matcher matcher = pattern.matcher(line);
+            Matcher matcher = logPattern.matcher(line);
 
             if(matcher.find())
             {
@@ -322,7 +325,7 @@ public class Controller {
     /*
         Parse data node strings into real data nodes.
      */
-    private ArrayList<DataNode> parseAllDataNodes(List<String> allDataNodes) {
+    private static ArrayList<DataNode> parseAllDataNodes(List<String> allDataNodes) {
         ArrayList<DataNode> rv = new ArrayList<>();
 
         allDataNodes.forEach(x -> parseDataNode(x, rv));
@@ -330,33 +333,37 @@ public class Controller {
         return rv;
     }
 
-    private void parseDataNode(String s, ArrayList<DataNode> returnVal) {
+    private static void parseDataNode(String s, ArrayList<DataNode> returnVal) {
 
         if(s.contains("=")) {
            String[] out =  s.split("=");
            if(out.length == 2) {
-               returnVal.add(new DataNode(out[0], out[1]));
+               if(out[0].contains("starting"))
+               {
+                   returnVal.add(new DataNode(ConstantStrings.STARTING, out[1]));
+               }
+               LOGGER.log(Level.WARNING, "Split on = was not 'starting', but " + s);
            }
            else LOGGER.log(Level.WARNING, "out.length on containing = were other than 2 on line: " + s);
         }
 
-        else if(s.contains("Action string ")) {
+        if(s.contains("Action string ")) {
             if(s.length() == 14) {
-                returnVal.add(new DataNode("Action string", "Natural end of action"));
+                returnVal.add(new DataNode(ConstantStrings.ACTION_STRING, ConstantStrings.NATURAL_END_OF_ACTION.string));
             }
             else {
                 String actionString = s.substring(14);
-                returnVal.add(new DataNode("Action string", actionString));
+                returnVal.add(new DataNode(ConstantStrings.ACTION_STRING, actionString));
             }
         }
         else if(s.contains("Received action number ")) {
             String actionNumber = s.substring(23);
-            returnVal.add(new DataNode("Received action number", actionNumber));
+            returnVal.add(new DataNode(ConstantStrings.RECIEVED_ACTION_NUMBER, actionNumber));
         }
         else if(s.contains("action")) {
             String[] out = s.split(" ");
 
-            if(out.length == 2) returnVal.add(new DataNode("actionNumber", out[1]));
+            if(out.length == 2) returnVal.add(new DataNode(ConstantStrings.ACTION_NUMBER, out[1]));
             else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
 
         }
@@ -364,7 +371,7 @@ public class Controller {
         else if(s.contains("source")) {
             String[] out = s.split(" ");
 
-            if(out.length == 2) returnVal.add(new DataNode(out[0], out[1]));
+            if(out.length == 2) returnVal.add(new DataNode(ConstantStrings.SOURCE, out[1]));
             else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
 
         }
@@ -372,41 +379,40 @@ public class Controller {
         else if(s.contains("target")) {
             String[] out = s.split(" ");
 
-            if(out.length == 2) returnVal.add(new DataNode(out[0], out[1]));
+            if(out.length == 2) returnVal.add(new DataNode(ConstantStrings.TARGET, out[1]));
             else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
 
         }
         else if(s.contains("Frozen. Ignoring.")){
-            returnVal.add(new DataNode(s, s));
+            returnVal.add(new DataNode(ConstantStrings.FROZEN_IGNORING, s));
         }
         else if(s.contains("time left ")) {
             String timeLeft = s.substring(10);
-            returnVal.add(new DataNode("time left", timeLeft));
+            returnVal.add(new DataNode(ConstantStrings.TIME_LEFT, timeLeft));
         }
         else if(s.contains("Found 0 triggers.")) {
-            String number = s.substring(6, 7);
-            returnVal.add(new DataNode("Found triggers", number));
+            if(testing) System.out.println("Ignoring line: "+s);
         }
-        else if(s.contains("macroquestion timeout. ")) {
-            String quack = s.substring(24);
-            String[] out = quack.split(": ");
-
-            if(out.length == 2) {
-                returnVal.add(new DataNode("Macroquestion", "timeout"));
-                returnVal.add(new DataNode(out[0], out[1]));
-            }
-            else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
-        }
-        else if(s.contains("wrong")){
-            String[] out = s.split(": ");
-
-            if(out.length == 2) returnVal.add(new DataNode(out[0], out[1]));
-            else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
-        }
-        else if(s.contains("out of ")) {
-            String amount = s.substring(7, 8);
-            returnVal.add(new DataNode("Out of", amount));
-        }
+//        else if(s.contains("macroquestion timeout. ")) {
+//            String quack = s.substring(24);
+//            String[] out = quack.split(": ");
+//
+//            if(out.length == 2) {
+//                returnVal.add(new DataNode("Macroquestion", "timeout"));
+//                returnVal.add(new DataNode(out[0], out[1]));
+//            }
+//            else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
+//        }
+//        else if(s.contains("wrong")){
+//            String[] out = s.split(": ");
+//
+//            if(out.length == 2) returnVal.add(new DataNode(out[0], out[1]));
+//            else LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
+//        }
+//        else if(s.contains("out of ")) {
+//            String amount = s.substring(7, 8);
+//            returnVal.add(new DataNode("Out of", amount));
+//        }
 
         else LOGGER.log(Level.WARNING, "Reached catch-all on parsing with line: " + s);
     }
@@ -420,10 +426,10 @@ public class Controller {
         s.close();
     }
 
-    public void setScene(Scene scene) { this.scene = scene; }
+    public void setScene(Scene _scene) { scene = _scene; }
 
-    public DataManagementModel getDmm() {
-        if(testing) return this.dmm;
+    public static DataManagementModel getDmm() {
+        if(testing) return dmm;
         else return null;
     }
 
