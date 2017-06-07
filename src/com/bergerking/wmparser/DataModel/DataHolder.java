@@ -1,5 +1,6 @@
 package com.bergerking.wmparser.DataModel;
 
+import com.bergerking.wmparser.ConstantStrings;
 import com.sun.istack.internal.Nullable;
 import javafx.scene.chart.XYChart;
 
@@ -17,13 +18,30 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 public class DataHolder {
     private String name;
     private ArrayList<DataPoint> dp;
+    private HashMap<ConstantStrings, ArrayList<PairValue>> metaMap;
 
     public DataHolder(String name) {
         this.name = name;
         this.dp = new ArrayList<>();
+        this.metaMap = new HashMap<>();
     }
 
-    public boolean addDataPoint(DataPoint d) {
+    public boolean addDataPoint(DataPoint d)
+    {
+        byte iterate = 0;
+        for (DataNode temp : d.getTokens())
+        {
+            ArrayList<PairValue> tempArr = metaMap.get(temp.getKey());
+            if (tempArr == null)
+            {
+                ArrayList<PairValue> init = new ArrayList<>();
+                init.add(new PairValue((short) dp.size(), iterate++));
+            }
+            else
+            {
+                tempArr.add(new PairValue((short) dp.size(), iterate++));
+            }
+        }
         return dp.add(d);
     }
 
@@ -43,13 +61,13 @@ public class DataHolder {
 
         // get all tokens, add to temporary array
         for(DataPoint d : dp) {
-            Optional o = d.getTokens().stream().filter(x -> x.getKey().equals("Received action number")).findFirst();
+            Optional o = d.getTokens().stream().filter(x -> x.getKey().equals(ConstantStrings.RECIEVED_ACTION_NUMBER)).findFirst();
             if(o.isPresent())
             {
                 if(lastTime != null) {
                     LocalTime tempTime = LocalTime.parse(d.getTimestamp());
                     long seconds = lastTime.until(tempTime, SECONDS);
-                    d.addToken(new DataNode("Seconds since last action", Long.toString(seconds)));
+                    d.addToken(new DataNode(ConstantStrings.NAME_OF_MACRO_TIME_STRING, Long.toString(seconds)));
                     lastTime = tempTime;
                 }
                 else lastTime = LocalTime.parse(d.getTimestamp());
@@ -62,7 +80,7 @@ public class DataHolder {
 
     public Map<String, Integer> getUniqueDataNodesAndCount( boolean getUniqueKey, boolean getKeyAndVal ) {
         Map<String, Integer> map = new HashMap<>();
-        ArrayList<String> tempArr = new ArrayList<>();
+        ArrayList<ConstantStrings> tempArr = new ArrayList<>();
         HashMap<String, Integer> rv = new HashMap<>();
 
         // get all tokens, add to temporary array
@@ -70,9 +88,9 @@ public class DataHolder {
                 .forEach(y -> tempArr.add(y.getKey())));
 
         // add all tokens you got to a hashmap, count collisions in the Integer
-        for (String temp : tempArr) {
+        for (ConstantStrings temp : tempArr) {
             Integer count = map.get(temp);
-            map.put(temp, (count == null) ? 1 : count + 1);
+            map.put(temp.string, (count == null) ? 1 : count + 1);
         }
 
 
@@ -96,8 +114,8 @@ public class DataHolder {
                     .forEachRemaining(it -> dp.stream()
                                     .forEach(x -> x.getTokens()
                                             .stream()
-                                            .filter(matches -> matches.getKey().contains(it))
-                                                    .forEach(y -> addToMap(y.getKey(), y.getValue(), tempMap))));
+                                            .filter(matches -> matches.getKey().string.contains(it))
+                                                    .forEach(y -> addToMap(y.getKey().string, y.getValue(), tempMap))));
 
             rv.putAll(tempMap);
         }
@@ -119,7 +137,7 @@ public class DataHolder {
 
 
         for(DataPoint d : dp) {
-            Optional<DataNode> o = d.getTokens().stream().filter(x -> x.getKey().equals("Seconds since last action")).findFirst();
+            Optional<DataNode> o = d.getTokens().stream().filter(x -> x.getKey().equals(ConstantStrings.NAME_OF_MACRO_TIME_STRING)).findFirst();
             if(o.isPresent())
             {
                 String val =  o.get().getValue();

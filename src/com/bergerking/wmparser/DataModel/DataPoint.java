@@ -16,7 +16,7 @@ public class DataPoint {
     private LocalDate date;
     private String timestamp;
     private String player;
-    private List tokens;
+    private ArrayList<DataNode> tokens;
     private Boolean visible;
 
     public DataPoint() {
@@ -30,7 +30,7 @@ public class DataPoint {
 
     }
 
-    public DataPoint(LocalDate date, String timestamp, String player, List<DataNode> tokens) {
+    public DataPoint(LocalDate date, String timestamp, String player, ArrayList<DataNode> tokens) {
         this.date = date;
         this.timestamp = timestamp;
         this.player = player;
@@ -67,8 +67,21 @@ public class DataPoint {
         this.player = player;
     }
 
-    public void setTokens(List<DataNode> tokens) {
+    public void setTokens(ArrayList<DataNode> tokens) {
         this.tokens = tokens;
+    }
+
+    public byte getAmountOfVisible() {
+
+        byte rv = 0;
+
+        for (DataNode n : tokens)
+        {
+            if(n.getVisibility()) rv++;
+        }
+
+
+        return rv;
     }
 
     @Override

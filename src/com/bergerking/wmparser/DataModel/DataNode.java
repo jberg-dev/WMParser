@@ -1,5 +1,7 @@
 package com.bergerking.wmparser.DataModel;
 
+import com.bergerking.wmparser.ConstantStrings;
+
 /**
  * Created by Bergerking on 2017-05-18.
  *
@@ -8,26 +10,26 @@ package com.bergerking.wmparser.DataModel;
  */
 public class DataNode {
 
-    private String key = "";
+    private ConstantStrings key;
     private String value = "";
     private boolean visible = true;
 
 
     public DataNode() {
-        this.key = "DEFAULT";
+        this.key = ConstantStrings.DEFAULT_STRING;
         this.value = "DEFAULT";
     }
 
-    public DataNode(String key, String value) {
+    public DataNode(ConstantStrings key, String value) {
         this.key = key;
         this.value = value;
     }
 
-    public String getKey() {
+    public ConstantStrings getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(ConstantStrings key) {
         this.key = key;
     }
 
@@ -46,7 +48,7 @@ public class DataNode {
     @Override
     public String toString() {
 
-        if(this.visible)return "(" + this.key +", "+ this.value + ")";
+        if(this.visible)return "(" + this.key.string +", "+ this.value + ")";
         else return "";
 
     }
