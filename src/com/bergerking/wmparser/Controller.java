@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
@@ -401,7 +402,7 @@ public class Controller {
     @FXML
     public void graphAsImage()
     {
-        BarChart bc = (BarChart) mainTabPane.getSelectionModel().getSelectedItem().getContent().lookup("#Graph");
+        StackedBarChart bc = (StackedBarChart) mainTabPane.getSelectionModel().getSelectedItem().getContent().lookup("#Graph");
         if(bc != null)
         {
             FileChooser fileChooser = new FileChooser();

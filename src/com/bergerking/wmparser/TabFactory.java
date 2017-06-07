@@ -6,9 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.StackedBarChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -18,6 +16,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Created by Bergerking on 2017-05-14.
@@ -171,27 +170,35 @@ public class TabFactory {
 
 
         //Barchart
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
         bc.setTitle("Summary");
         bc.getData().clear();
         bc.setLegendVisible(true);
         bc.setCategoryGap(1);
-
-        xAxis.setTickLabelRotation(90);
 
         ArrayList<String> tempArr = dock.getUniqueActionNumbers();
 
         for(String s : tempArr)
         {
             bc.getData().add(dock.calculateIntervalsBetweenActions(s));
-
         }
 //        bc.getData().addAll(dock.getSeriesOfTimes());
         bc.getXAxis().setAutoRanging(true);
         bc.getYAxis().setAutoRanging(true);
 
-        return false;
+
+        ObservableList<XYChart.Series> xys = bc.getData();
+        for(XYChart.Series<String,Number> series : xys) {
+            ArrayList<XYChart.Data> removelist = new ArrayList<>();
+
+            for(XYChart.Data<String,Number> data: series.getData()) {
+                if(data.getYValue().equals(0)) removelist.add(data);
+            }
+
+            series.getData().removeAll(removelist);
+        }
+
+
+        return true;
     }
 
 

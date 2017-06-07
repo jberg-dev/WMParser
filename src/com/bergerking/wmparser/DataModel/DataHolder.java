@@ -141,9 +141,9 @@ public class DataHolder {
             //todo add filter so the user can choose what to ignore and not.
             for(int i = 2; i <= maxVal; i++) {
                 Integer find = listOfNumbers.get(i);
-                if(find != null) {
+                if(find == null) {
 
-                    XYChart.Data toAdd = new XYChart.Data(Integer.valueOf(i).toString(), find);
+                    XYChart.Data toAdd = new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0));
                     returnValue.getData().add(toAdd);
 //                    if(listOfNumbers.get(i+1) != null)
 //                    {
@@ -151,7 +151,7 @@ public class DataHolder {
 //                    }
 
                 }
-//                else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), find));
+                else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), find));
             }
 
         }
@@ -160,6 +160,7 @@ public class DataHolder {
 //        {
 //            System.out.println("Hi.");
 //        }
+
         return returnValue;
     }
 
@@ -215,7 +216,7 @@ public class DataHolder {
         hm.put(temp, (count == null) ? 1 : count + 1);
     }
 
-    public XYChart.Series<String, Number> getSeriesOfTimes() {
+    public XYChart.Series<Number, Number> getSeriesOfTimes() {
         XYChart.Series returnValue = new XYChart.Series();
         returnValue.setName(this.name);
         int maxVal = 0;
@@ -237,19 +238,18 @@ public class DataHolder {
 
         }
 
-        for(int i = 0; i <= maxVal; i++) {
+        for(int i = 2; i <= maxVal; i++) {
             Integer find = listOfNumbers.get(i);
             if(find == null) {
 
 //                returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
 
-                if(listOfNumbers.get(i+1) != null)
-                {
-                    returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
-                }
+
+                returnValue.getData().add(new XYChart.Data(Integer.valueOf(i), Integer.valueOf(0)));
+
 
             }
-            else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), find));
+            else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i), find));
         }
 
         return returnValue;

@@ -19,7 +19,7 @@
         <HBox>
             <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" HBox.hgrow="ALWAYS"></StackPane>
             <VBox HBox.hgrow="ALWAYS" >
-                <StackedBarChart fx:id="Graph" alternativeColumnFillVisible="true" alternativeRowFillVisible="true" animated="false" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" legendVisible="false" prefHeight="-1.0" prefWidth="-1.0" verticalGridLinesVisible="true" verticalZeroLineVisible="true">
+                <StackedBarChart fx:id="Graph" alternativeColumnFillVisible="true" alternativeRowFillVisible="true" animated="false" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" legendVisible="false">
                     <xAxis>
                         <CategoryAxis id="categoryAxis" side="BOTTOM" />
                     </xAxis>
