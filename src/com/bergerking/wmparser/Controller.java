@@ -7,14 +7,18 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -389,6 +393,38 @@ public class Controller {
     public DataManagementModel getDmm() {
         if(testing) return this.dmm;
         else return null;
+    }
+
+    /*
+        Save current graph as an image. You choose where.
+     */
+    @FXML
+    public void graphAsImage()
+    {
+        BarChart bc = (BarChart) mainTabPane.getSelectionModel().getSelectedItem().getContent().lookup("#Graph");
+        if(bc != null)
+        {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select destination");
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            fileChooser.setInitialFileName(mainTabPane.getSelectionModel().getSelectedItem().getId() +
+            "_"+System.currentTimeMillis()+".png");
+            File selected = fileChooser.showSaveDialog(mainBorderPane.getScene().getWindow());
+            if(selected != null)
+            {
+                WritableImage snapshot = bc.snapshot(null, null);
+                try
+                {
+                    ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", selected);
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else LOGGER.info("No file selected, doing nothing.");
+
+        }
+        else LOGGER.severe("Not on a tab with a graph. Doing nothing.");
     }
 
 

@@ -2,6 +2,7 @@ package com.bergerking.wmparser.DataModel;
 
 import com.bergerking.wmparser.ConstantStrings;
 import com.sun.istack.internal.Nullable;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 
 import java.time.LocalTime;
@@ -37,6 +38,7 @@ public class DataHolder {
             {
                 ArrayList<PairValue> init = new ArrayList<>();
                 init.add(new PairValue((short) dp.size(), iterate++));
+                metaMap.put(temp.getKey(), init);
             }
             else
             {
@@ -79,12 +81,37 @@ public class DataHolder {
         System.out.println("Failed to calculate "+ iterateFail + " times. Succeeded "+ iterateSucceed +" times.");
     }
 
+    public ArrayList<String> getUniqueActionNumbers()
+    {
+        ArrayList<String> rv = new ArrayList<>();
+        HashSet<String> tempSet = new HashSet<>();
+        ArrayList<PairValue> matchSet = metaMap.get(ConstantStrings.RECIEVED_ACTION_NUMBER);
+
+        if (matchSet != null)
+        {
+            for (PairValue pv : matchSet)
+            {
+                tempSet.add(dp.get(pv.getNodePlace()).getTokens().get(pv.getPointPlace()).getValue());
+            }
+
+            rv.addAll(tempSet);
+
+        }
+        else Logger.getGlobal().warning("Could not find any holder for recieved action number, cancelling.");
+
+
+
+        return rv;
+    }
+
     public XYChart.Series<String, Number> calculateIntervalsBetweenActions(String actionNumber)
     {
         XYChart.Series returnValue = new XYChart.Series();
+        returnValue.setName(actionNumber);
         LocalTime lastTime = null;
-        TreeMap<Integer, Integer> listOfNumbers = new TreeMap<>();
+        TreeMap<Integer, Integer> listOfNumbers = new TreeMap<Integer, Integer>();
         int maxVal = 0;
+        int stopVal = 500;
 
         ArrayList<PairValue> temp = metaMap.get(ConstantStrings.RECIEVED_ACTION_NUMBER);
 
@@ -92,7 +119,8 @@ public class DataHolder {
         {
             for( PairValue p : temp)
             {
-                if (dp.get(p.getNodePlace()).getTokens().get(p.getPointPlace()).getValue() != actionNumber)
+                String s = dp.get(p.getNodePlace()).getTokens().get(p.getPointPlace()).getValue();
+                if (!s.equals(actionNumber))
                     continue;
 
                 if(lastTime != null)
@@ -103,28 +131,35 @@ public class DataHolder {
 
                     Integer count = listOfNumbers.get(seconds);
                     listOfNumbers.put(seconds, (count == null) ? 1 : count + 1);
+                    lastTime = tempTime;
 
 
                 }
                 else lastTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
 
             }
-
+            //todo add filter so the user can choose what to ignore and not.
             for(int i = 2; i <= maxVal; i++) {
                 Integer find = listOfNumbers.get(i);
-                if(find == null) {
+                if(find != null) {
 
-                    if(listOfNumbers.get(i+1) != null)
-                    {
-                        returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
-                    }
+                    XYChart.Data toAdd = new XYChart.Data(Integer.valueOf(i).toString(), find);
+                    returnValue.getData().add(toAdd);
+//                    if(listOfNumbers.get(i+1) != null)
+//                    {
+//                        returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
+//                    }
 
                 }
-                else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), find));
+//                else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), find));
             }
 
         }
         else Logger.getGlobal().warning("Could not find meta map for Recieved action numer, aborting");
+//        if(maxVal > stopVal)
+//        {
+//            System.out.println("Hi.");
+//        }
         return returnValue;
     }
 
@@ -202,9 +237,11 @@ public class DataHolder {
 
         }
 
-        for(int i = 2; i <= maxVal; i++) {
+        for(int i = 0; i <= maxVal; i++) {
             Integer find = listOfNumbers.get(i);
             if(find == null) {
+
+//                returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
 
                 if(listOfNumbers.get(i+1) != null)
                 {

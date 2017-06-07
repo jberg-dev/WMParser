@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -166,7 +167,7 @@ public class TabFactory {
     public boolean updateBarChart(Tab t, DataHolder dock) {
         Node n = t.getContent();
         Node graph = n.lookup("#Graph");
-        BarChart bc = (BarChart) graph;
+        StackedBarChart bc = (StackedBarChart) graph;
 
 
         //Barchart
@@ -174,9 +175,19 @@ public class TabFactory {
         NumberAxis yAxis = new NumberAxis();
         bc.setTitle("Summary");
         bc.getData().clear();
+        bc.setLegendVisible(true);
+        bc.setCategoryGap(1);
 
-        bc.getData().addAll(dock.getSeriesOfTimes());
+        xAxis.setTickLabelRotation(90);
 
+        ArrayList<String> tempArr = dock.getUniqueActionNumbers();
+
+        for(String s : tempArr)
+        {
+            bc.getData().add(dock.calculateIntervalsBetweenActions(s));
+
+        }
+//        bc.getData().addAll(dock.getSeriesOfTimes());
         bc.getXAxis().setAutoRanging(true);
         bc.getYAxis().setAutoRanging(true);
 
