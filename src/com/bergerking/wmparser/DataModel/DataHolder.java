@@ -6,6 +6,7 @@ import javafx.scene.chart.XYChart;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -53,7 +54,7 @@ public class DataHolder {
         return this.dp;
     }
 
-    public void calculateTimes() {
+    public void calculateTimesGeneric () {
         ArrayList<DataNode> tempArr = new ArrayList();
         LocalTime lastTime = null;
         int iterateFail = 0;
@@ -77,6 +78,56 @@ public class DataHolder {
         }
         System.out.println("Failed to calculate "+ iterateFail + " times. Succeeded "+ iterateSucceed +" times.");
     }
+
+    public XYChart.Series<String, Number> calculateIntervalsBetweenActions(String actionNumber)
+    {
+        XYChart.Series returnValue = new XYChart.Series();
+        LocalTime lastTime = null;
+        TreeMap<Integer, Integer> listOfNumbers = new TreeMap<>();
+        int maxVal = 0;
+
+        ArrayList<PairValue> temp = metaMap.get(ConstantStrings.RECIEVED_ACTION_NUMBER);
+
+        if (temp != null)
+        {
+            for( PairValue p : temp)
+            {
+                if (dp.get(p.getNodePlace()).getTokens().get(p.getPointPlace()).getValue() != actionNumber)
+                    continue;
+
+                if(lastTime != null)
+                {
+                    LocalTime tempTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
+                    int seconds = (int) lastTime.until(tempTime, SECONDS);
+                    if(seconds > maxVal) maxVal = seconds;
+
+                    Integer count = listOfNumbers.get(seconds);
+                    listOfNumbers.put(seconds, (count == null) ? 1 : count + 1);
+
+
+                }
+                else lastTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
+
+            }
+
+            for(int i = 2; i <= maxVal; i++) {
+                Integer find = listOfNumbers.get(i);
+                if(find == null) {
+
+                    if(listOfNumbers.get(i+1) != null)
+                    {
+                        returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
+                    }
+
+                }
+                else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), find));
+            }
+
+        }
+        else Logger.getGlobal().warning("Could not find meta map for Recieved action numer, aborting");
+        return returnValue;
+    }
+
 
     public Map<String, Integer> getUniqueDataNodesAndCount( boolean getUniqueKey, boolean getKeyAndVal ) {
         Map<String, Integer> map = new HashMap<>();

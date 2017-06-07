@@ -2,13 +2,11 @@ package com.bergerking.wmparser;
 
 import com.bergerking.wmparser.DataModel.DataHolder;
 import com.bergerking.wmparser.DataModel.DataPoint;
-import com.sun.javafx.UnmodifiableArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
@@ -42,7 +40,7 @@ public class TabFactory {
         }
 
         tabby.setContent(main);
-        datters.calculateTimes();
+        datters.calculateTimesGeneric();
         tabby.setId(datters.getName());
         tabby.setText(datters.getName());
 
