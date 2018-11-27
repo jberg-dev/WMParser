@@ -52,7 +52,7 @@ public class TabFactory {
         return rv;
     }
 
-    public void setListOfActions(Tab t, DataHolder hudder) {
+    public static void setListOfActions(Tab t, DataHolder hudder) {
 
         Node n = t.getContent();
         Node listofActions = n.lookup("#ListOfActions");
@@ -86,7 +86,7 @@ public class TabFactory {
 
     }
 
-    public void setRollingLog(Tab t, DataHolder doot) {
+    public static void setRollingLog(Tab t, DataHolder doot) {
         Node n = t.getContent();
 
         Node rollingLog = n.lookup("#RollingLog");
@@ -163,7 +163,7 @@ public class TabFactory {
         }
     }
 
-    public boolean updateBarChart(Tab t, DataHolder dock) {
+    public static boolean updateBarChart(Tab t, DataHolder dock) {
         Node n = t.getContent();
         Node graph = n.lookup("#Graph");
         StackedBarChart bc = (StackedBarChart) graph;
@@ -195,6 +195,12 @@ public class TabFactory {
             }
 
             series.getData().removeAll(removelist);
+            series.getData().forEach(d -> {
+                Tooltip tip = new Tooltip();
+                tip.setText(series.getName() + ", " + d.getYValue() +
+                        (d.getYValue().intValue() > 1 ? " times" : " time"));
+                Tooltip.install(d.getNode(), tip);
+            });
         }
 
 

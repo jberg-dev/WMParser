@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -105,7 +106,6 @@ public class ParserMain extends Application {
 
             LOGGER.log(Level.INFO, "Logger Initialized");
 
-
         }
         else {
             LOGGER.log(Level.WARNING, "Could not find tag #LogRoll in MainTabPane");
@@ -122,7 +122,6 @@ public class ParserMain extends Application {
         launch(args);
 
     }
-
 
     public ArrayList<String> getSampleTextFile() throws Exception {
         ArrayList<String> rv = new ArrayList<>();

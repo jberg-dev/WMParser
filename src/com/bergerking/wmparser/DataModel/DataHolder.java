@@ -21,11 +21,13 @@ public class DataHolder {
     private String name;
     private ArrayList<DataPoint> dp;
     private HashMap<ConstantStrings, ArrayList<PairValue>> metaMap;
+    private HashMap<String, ArrayList<PairValue>> ignoreList;
 
     public DataHolder(String name) {
         this.name = name;
         this.dp = new ArrayList<>();
         this.metaMap = new HashMap<>();
+        this.ignoreList = new HashMap<>();
     }
 
     public boolean addDataPoint(DataPoint d)
@@ -46,6 +48,39 @@ public class DataHolder {
             }
         }
         return dp.add(d);
+    }
+
+    public boolean ignoreDataPoint(ConstantStrings _type, String _value)
+    {
+
+        ArrayList<PairValue> temp = metaMap.get(_type);
+
+//        if(metaMap.get(_type) != null)
+//        {
+//            for( PairValue p : temp)
+//            {
+//                String s = dp.get(p.getNodePlace()).getTokens().get(p.getPointPlace()).getValue();
+//                if (!s.equals(actionNumber))
+//                    continue;
+//
+//                if(lastTime != null)
+//                {
+//                    LocalTime tempTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
+//                    int seconds = (int) lastTime.until(tempTime, SECONDS);
+//                    if(seconds > maxVal) maxVal = seconds;
+//
+//                    Integer count = listOfNumbers.get(seconds);
+//                    listOfNumbers.put(seconds, (count == null) ? 1 : count + 1);
+//                    lastTime = tempTime;
+//
+//
+//                }
+//                else lastTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
+//
+//            }
+//        }
+
+        return false;
     }
 
     public String getName() {

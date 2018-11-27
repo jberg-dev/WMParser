@@ -2,6 +2,9 @@ package com.bergerking.wmparser.DataModel;
 
 /**
  * Created by Bergerking on 2017-05-21.
+ *
+ * Acts as an index in the dataPoint map of the DataHolder.
+ *
  */
 public class PairValue implements Comparable<PairValue>{
     private short nodePlace;
