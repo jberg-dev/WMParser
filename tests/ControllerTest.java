@@ -1,8 +1,6 @@
 package tests;
 
-import com.bergerking.wmparser.Controller;
-import com.bergerking.wmparser.TabFactory;
-import javafx.embed.swing.JFXPanel;
+import coffee.berg.wmparser.Controller;
 import org.junit.Before;
 import org.junit.Test;
 

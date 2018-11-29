@@ -1,6 +1,6 @@
-package com.bergerking.wmparser.DataModel;
+package coffee.berg.wmparser.DataModel;
 
-import com.bergerking.wmparser.ConstantStrings;
+import coffee.berg.wmparser.ConstantStrings;
 
 /**
  * Created by Bergerking on 2017-05-18.

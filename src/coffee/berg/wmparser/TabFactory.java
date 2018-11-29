@@ -1,7 +1,7 @@
-package com.bergerking.wmparser;
+package coffee.berg.wmparser;
 
-import com.bergerking.wmparser.DataModel.DataHolder;
-import com.bergerking.wmparser.DataModel.DataPoint;
+import coffee.berg.wmparser.DataModel.DataHolder;
+import coffee.berg.wmparser.DataModel.DataPoint;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Created by Bergerking on 2017-05-14.
@@ -190,7 +189,7 @@ public class TabFactory {
         for(XYChart.Series<String,Number> series : xys) {
             ArrayList<XYChart.Data> removelist = new ArrayList<>();
 
-            for(XYChart.Data<String,Number> data: series.getData()) {
+            for(XYChart.Data<String,Number> data : series.getData()) {
                 if(data.getYValue().equals(0)) removelist.add(data);
             }
 

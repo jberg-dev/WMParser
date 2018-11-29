@@ -14,10 +14,13 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:id="TabLayout"
+            fx:controller="coffee.berg.wmparser.GenericTabController"
             prefHeight="Infinity" prefWidth="Infinity">
     <center>
         <HBox>
-            <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" HBox.hgrow="ALWAYS"></StackPane>
+            <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" HBox.hgrow="ALWAYS">
+            </StackPane>
+            <Button text="Test" onAction="#testButton" fx:id="testButton"/>
             <VBox HBox.hgrow="ALWAYS" >
                 <StackedBarChart fx:id="Graph" alternativeColumnFillVisible="true" alternativeRowFillVisible="true" animated="false" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" legendVisible="false">
                     <xAxis>

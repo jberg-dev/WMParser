@@ -1,23 +1,19 @@
-package com.bergerking.wmparser;
+package coffee.berg.wmparser;
 
-import com.bergerking.wmparser.DataModel.DataManagementModel;
-import com.bergerking.wmparser.DataModel.DataNode;
-import com.bergerking.wmparser.DataModel.DataPoint;
+import coffee.berg.wmparser.DataModel.DataManagementModel;
+import coffee.berg.wmparser.DataModel.DataNode;
+import coffee.berg.wmparser.DataModel.DataPoint;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.chart.BarChart;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.io.*;

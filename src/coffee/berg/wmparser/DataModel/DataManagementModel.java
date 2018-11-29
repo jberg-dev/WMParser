@@ -1,6 +1,6 @@
-package com.bergerking.wmparser.DataModel;
+package coffee.berg.wmparser.DataModel;
 
-import com.bergerking.wmparser.Controller;
+import coffee.berg.wmparser.Controller;
 
 import java.time.LocalDate;
 import java.util.*;

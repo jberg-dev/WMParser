@@ -1,8 +1,6 @@
-package com.bergerking.wmparser.DataModel;
+package coffee.berg.wmparser.DataModel;
 
-import com.bergerking.wmparser.ConstantStrings;
-import com.sun.istack.internal.Nullable;
-import javafx.scene.chart.LineChart;
+import coffee.berg.wmparser.ConstantStrings;
 import javafx.scene.chart.XYChart;
 
 import java.time.LocalTime;
@@ -113,7 +111,7 @@ public class DataHolder {
             }
             else iterateFail++;
         }
-        System.out.println("Failed to calculate "+ iterateFail + " times. Succeeded "+ iterateSucceed +" times.");
+        System.out.println("Failed to calculate "+ iterateFail + " times since the line was irrelevant. Succeeded with "+ iterateSucceed +" actions.");
     }
 
     public ArrayList<String> getUniqueActionNumbers()

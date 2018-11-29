@@ -1,8 +1,7 @@
-package com.bergerking.wmparser;
+package coffee.berg.wmparser;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -12,17 +11,11 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.logging.*;
 
 public class ParserMain extends Application {

@@ -1,4 +1,4 @@
-package com.bergerking.wmparser;
+package coffee.berg.wmparser;
 
 /**
  * Created by Bergerking on 2017-06-05.

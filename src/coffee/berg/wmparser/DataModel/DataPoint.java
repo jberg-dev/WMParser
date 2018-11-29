@@ -1,4 +1,4 @@
-package com.bergerking.wmparser.DataModel;
+package coffee.berg.wmparser.DataModel;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

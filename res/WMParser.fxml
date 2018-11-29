@@ -7,7 +7,7 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
-<BorderPane fx:controller="com.bergerking.wmparser.Controller"
+<BorderPane fx:controller="coffee.berg.wmparser.Controller"
             xmlns:fx="http://javafx.com/fxml" fx:id="mainBorderPane">
     <top>
         <MenuBar fx:id="menuBar">

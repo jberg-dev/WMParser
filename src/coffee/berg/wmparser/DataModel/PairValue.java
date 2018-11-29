@@ -1,4 +1,4 @@
-package com.bergerking.wmparser.DataModel;
+package coffee.berg.wmparser.DataModel;
 
 /**
  * Created by Bergerking on 2017-05-21.
