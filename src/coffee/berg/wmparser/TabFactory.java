@@ -51,20 +51,19 @@ public class TabFactory {
         if(controller == null)
             return Optional.empty();
 
-        setListOfActions(tabby, datters);
-        setRollingLog(tabby, datters);
+        setListOfActions(tabby, datters, controller);
+        setRollingLog(tabby, datters, controller);
         updateBarChart(tabby, datters, controller);
 
         return Optional.of(new Pair(tabby, controller));
     }
 
-    public static void setListOfActions(Tab t, DataHolder hudder) {
+    public static void setListOfActions(Tab t, DataHolder hudder, GenericTabController _controller) {
 
         Node n = t.getContent();
         Node listofActions = n.lookup("#ListOfActions");
 
         StackPane lv = (StackPane) listofActions;
-
 
         TreeItem<String> rootNode = new TreeItem("Actions");
         rootNode.setExpanded(true);
@@ -76,6 +75,11 @@ public class TabFactory {
         HashMap<String, Integer> hm = (HashMap) hudder.getUniqueDataNodesAndCount(true, false);
         TreeMap<String, Integer> tree = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         tree.putAll(hm);
+
+        if (tree != null)
+        {
+            _controller.setTreeView(tree);
+        }
 
         ArrayList<String> al = new ArrayList<>();
         tree.forEach((x, y) -> al.add(x + ": " + y));
@@ -92,7 +96,7 @@ public class TabFactory {
 
     }
 
-    public static void setRollingLog(Tab t, DataHolder doot) {
+    public static void setRollingLog(Tab t, DataHolder doot, GenericTabController _controller) {
         Node n = t.getContent();
 
         Node rollingLog = n.lookup("#RollingLog");
@@ -119,6 +123,8 @@ public class TabFactory {
             TreeView<String> treeView = (TreeView<String>) foundNode;
             TreeItem<String> rootNode = treeView.getRoot();
 
+            _controller.setRollingLog(treeView);
+
             ObservableList<TreeItem<String>> obsL = rootNode.getChildren().sorted();
             ArrayList<DataPoint> hold = doot.getDataPoints();
             ArrayList<DataPoint> toDisplay = new ArrayList<>();
@@ -141,6 +147,8 @@ public class TabFactory {
                         if(s.contains(matchThis[0])) {
                             CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem(s);
                             newLeaf.setSelected(true);
+                            newLeaf.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(),
+                                    e -> _controller.handleClickedTreeleaf(newLeaf));
                             node.getChildren().add(newLeaf);
                             found = true;
                         }

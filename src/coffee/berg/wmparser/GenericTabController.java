@@ -3,8 +3,11 @@ package coffee.berg.wmparser;
 import javafx.fxml.FXML;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBoxTreeItem;
+import javafx.scene.control.TreeView;
 
 import java.util.Random;
+import java.util.TreeMap;
 
 /**
  * Created by Bergerking on 2018-11-29.
@@ -15,6 +18,8 @@ public class GenericTabController
 	private Button tstBtn;
 
 	private XYChart chart;
+	private TreeView rollingLog;
+	private TreeMap tree;
 
 	public void initialize()
 	{
@@ -31,6 +36,21 @@ public class GenericTabController
 	void setChart(XYChart _chart)
 	{
 		this.chart = _chart;
+	}
+
+	void setRollingLog(TreeView _rollingLog)
+	{
+		this.rollingLog = _rollingLog;
+	}
+
+	void setTreeView(TreeMap _tree)
+	{
+		this.tree = _tree;
+	}
+
+	void handleClickedTreeleaf(CheckBoxTreeItem _item)
+	{
+
 	}
 
 

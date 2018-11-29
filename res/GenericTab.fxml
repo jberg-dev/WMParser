@@ -18,10 +18,10 @@
             prefHeight="Infinity" prefWidth="Infinity">
     <center>
         <HBox>
-            <VBox>
-                <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" HBox.hgrow="ALWAYS">
+            <VBox maxHeight="Infinity">
+                <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" maxHeight="Infinity" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                 </StackPane>
-                <Button fx:id="tstBtn" text="Test" onAction="#testButton"/>
+                <Button fx:id="tstBtn" text="Test" onAction="#testButton" alignment="BOTTOM_CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
             </VBox>
             <VBox HBox.hgrow="ALWAYS" >
                 <StackedBarChart fx:id="Graph" alternativeColumnFillVisible="true" alternativeRowFillVisible="true" animated="false" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" legendVisible="false">
