@@ -11,16 +11,18 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.StackedBarChart?>
-<BorderPane xmlns="http://javafx.com/javafx"
+<BorderPane fx:controller="coffee.berg.wmparser.GenericTabController"
+            xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:id="TabLayout"
-            fx:controller="coffee.berg.wmparser.GenericTabController"
             prefHeight="Infinity" prefWidth="Infinity">
     <center>
         <HBox>
-            <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" HBox.hgrow="ALWAYS">
-            </StackPane>
-            <Button text="Test" onAction="#testButton" fx:id="testButton"/>
+            <VBox>
+                <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" HBox.hgrow="ALWAYS">
+                </StackPane>
+                <Button fx:id="tstBtn" text="Test" onAction="#testButton"/>
+            </VBox>
             <VBox HBox.hgrow="ALWAYS" >
                 <StackedBarChart fx:id="Graph" alternativeColumnFillVisible="true" alternativeRowFillVisible="true" animated="false" horizontalGridLinesVisible="true" horizontalZeroLineVisible="true" legendVisible="false">
                     <xAxis>

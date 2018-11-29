@@ -3,6 +3,7 @@ package coffee.berg.wmparser;
 import coffee.berg.wmparser.DataModel.DataManagementModel;
 import coffee.berg.wmparser.DataModel.DataNode;
 import coffee.berg.wmparser.DataModel.DataPoint;
+import coffee.berg.wmparser.Generics.Pair;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -58,6 +59,7 @@ public class Controller {
     private boolean multiLineLog;
     private String DataPointSharedUUID;
     private DataManagementModel dmm = new DataManagementModel();
+    private ArrayList<Pair<Tab, GenericTabController>> tabsAndControllers;
 
     // Patterns so we don't compile them all the time.
     private static Pattern datePattern = Pattern.compile("(^.*)(\\d{4}-\\d{2}-\\d{2})");
@@ -95,7 +97,7 @@ public class Controller {
                 }
             }
         }
-
+        tabsAndControllers = new ArrayList<>();
         bindStatusLabel();
 
     }
@@ -176,9 +178,12 @@ public class Controller {
                 final int iterate = i;
 
                 if(!mainTabPane.getTabs().stream().anyMatch(x -> x.getId().equals(al.get(iterate)))) {
-                    Optional<Tab> t = tf.manufactureTab(dmm.getDataHolderForName(al.get(i)).get());
+                    Optional<Pair<Tab, GenericTabController>> t = tf.manufactureTab(dmm.getDataHolderForName(al.get(i)).get());
 
-                    if(t.isPresent()) mainTabPane.getTabs().add(t.get());
+                    if(t.isPresent()){
+                        mainTabPane.getTabs().add(t.get().getFirst());
+                        tabsAndControllers.add(t.get());
+                    }
                     else LOGGER.log(Level.WARNING, "failed to produce tab for" + al.get(iterate));
                 }
                 else System.out.println("Did not attempt to create new tab for: " + al.get(i));

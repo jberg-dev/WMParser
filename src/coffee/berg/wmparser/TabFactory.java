@@ -2,10 +2,12 @@ package coffee.berg.wmparser;
 
 import coffee.berg.wmparser.DataModel.DataHolder;
 import coffee.berg.wmparser.DataModel.DataPoint;
+import coffee.berg.wmparser.Generics.Pair;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
@@ -26,29 +28,34 @@ public class TabFactory {
 
     }
 
-    public Optional<Tab> manufactureTab(DataHolder datters) {
-        Optional<Tab> rv = Optional.empty();
+    public Optional<Pair<Tab, GenericTabController>> manufactureTab(DataHolder datters) {
         Tab tabby = new Tab();
 
-        Node main = null;
+        Parent main = null;
+        FXMLLoader fxmlLoader;
+        fxmlLoader =  new FXMLLoader(getClass().getClassLoader().getResource("GenericTab.fxml"));
 
         try {
-            main = FXMLLoader.load(getClass().getClassLoader().getResource("GenericTab.fxml"));
+            main = fxmlLoader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
         tabby.setContent(main);
         datters.calculateTimesGeneric();
         tabby.setId(datters.getName());
         tabby.setText(datters.getName());
 
+        GenericTabController controller = fxmlLoader.getController();
+        if(controller == null)
+            return Optional.empty();
+
         setListOfActions(tabby, datters);
         setRollingLog(tabby, datters);
-        updateBarChart(tabby, datters);
+        updateBarChart(tabby, datters, controller);
 
-        rv = Optional.of(tabby);
-        return rv;
+        return Optional.of(new Pair(tabby, controller));
     }
 
     public static void setListOfActions(Tab t, DataHolder hudder) {
@@ -162,11 +169,11 @@ public class TabFactory {
         }
     }
 
-    public static boolean updateBarChart(Tab t, DataHolder dock) {
+    public static boolean updateBarChart(Tab t, DataHolder dock, GenericTabController _controller) {
         Node n = t.getContent();
         Node graph = n.lookup("#Graph");
         StackedBarChart bc = (StackedBarChart) graph;
-
+        _controller.setChart(bc);
 
         //Barchart
         bc.setTitle("Summary");
