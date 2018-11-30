@@ -26,7 +26,7 @@ public class DataPoint {
         ArrayList<DataNode> al = new ArrayList();
         al.add(new DataNode());
         this.tokens = al;
-        this.visible = true;
+        this.visible = false;
 
     }
 
@@ -35,6 +35,12 @@ public class DataPoint {
         this.timestamp = timestamp;
         this.player = player;
         this.tokens = tokens;
+        if (tokens.size() == 0)
+        {
+            visible = false;
+        }
+        else
+            visible = true;
     }
 
     public LocalDate getDate() {
@@ -71,18 +77,26 @@ public class DataPoint {
         this.tokens = tokens;
     }
 
-    public byte getAmountOfVisible() {
+    public void checkVisible()
+    {
+        if (tokens.size() == 0)
+            visible = false;
+    }
 
-        byte rv = 0;
+    public boolean isVisible() {
 
-        for (DataNode n : tokens)
+        if (tokens != null)
         {
-            if(n.getVisibility()) rv++;
+            for (DataNode n : tokens)
+            {
+                if (!n.getVisibility())
+                    visible = false;
+            }
         }
 
-
-        return rv;
+        return visible;
     }
+
 
     @Override
     public String toString() {

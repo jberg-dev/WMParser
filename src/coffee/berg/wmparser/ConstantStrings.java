@@ -16,6 +16,7 @@ public enum ConstantStrings
     FROZEN_IGNORING("Frozen. Ignoring."),
     TIME_LEFT("time left"),
     NAME_OF_MACRO_TIME_STRING("Seconds since last action"),
+    FOUND_TRIGGERS("Found triggers"),
 
     VERSION_OF_INDEX("1.0");
 

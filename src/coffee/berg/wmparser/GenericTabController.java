@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBoxTreeItem;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TreeView;
 
 import java.util.Random;
@@ -18,7 +19,7 @@ public class GenericTabController
 	private Button tstBtn;
 
 	private XYChart chart;
-	private TreeView rollingLog;
+	private TableView rollingLog;
 	private TreeMap tree;
 
 	public void initialize()
@@ -38,7 +39,7 @@ public class GenericTabController
 		this.chart = _chart;
 	}
 
-	void setRollingLog(TreeView _rollingLog)
+	void setRollingLog(TableView _rollingLog)
 	{
 		this.rollingLog = _rollingLog;
 	}

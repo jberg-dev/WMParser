@@ -34,16 +34,17 @@ public class DataManagementModel {
     }
 
     public boolean addItem(DataPoint d) {
-        if(d != null) {
+        if (d != null) {
 
             //check so data isn't obviously malformed
-            if(d.getPlayer().equals("DEFAULT")) {
-                if(!Controller.testing) LOGGER.log(Level.WARNING, "Attempted to add an uninitialized DataPoint to DataManagementModel");
+            if (d.getPlayer().equals("DEFAULT")) {
+                if(!Controller.testing)
+                    LOGGER.log(Level.WARNING, "Attempted to add an uninitialized DataPoint to DataManagementModel");
                 return false;
             }
 
             //get name, look for already existing store for that name.
-            String name = d.getPlayer();
+            final String name = d.getPlayer();
             Optional<DataHolder> dh = container.stream().filter(x -> name.equals(x.getName())).findFirst();
 
             //if present, add to existing

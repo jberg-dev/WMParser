@@ -19,7 +19,7 @@
     <center>
         <HBox>
             <VBox maxHeight="Infinity">
-                <StackPane fx:id="ListOfActions" prefWidth="200" maxWidth="300" maxHeight="Infinity" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                <StackPane fx:id="ListOfActions" prefWidth="200" maxHeight="Infinity" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                 </StackPane>
                 <Button fx:id="tstBtn" text="Test" onAction="#testButton" alignment="BOTTOM_CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
             </VBox>

@@ -137,28 +137,46 @@ public class DataHolder {
         return rv;
     }
 
-    public XYChart.Series<String, Number> calculateIntervalsBetweenActions(String actionNumber)
+    /**
+     * Basically:
+     * Get the array list of pair values from the meta map cache for that constant.
+     * Once you have all the values, iterate over them and calculate how long time it was
+     * between the actions being sent from the client from the last time it was sent.
+     *
+     * if @_sameActionNumbersOnly is false, calculate timer between all actions sent
+     * irregardless if they're the same action number or not.
+     *
+     */
+    public XYChart.Series<String, Number> calculateIntervalsBetweenActions(String _actionNumber,
+                                                                           final boolean _sameActionNumbersOnly)
     {
         XYChart.Series returnValue = new XYChart.Series();
-        returnValue.setName(actionNumber);
+        returnValue.setName(_actionNumber);
         LocalTime lastTime = null;
         TreeMap<Integer, Integer> listOfNumbers = new TreeMap<Integer, Integer>();
         int maxVal = 0;
-        int stopVal = 500;
 
-        ArrayList<PairValue> temp = metaMap.get(ConstantStrings.RECIEVED_ACTION_NUMBER);
+        ArrayList<PairValue> recievedActionNumberStrings = metaMap.get(ConstantStrings.RECIEVED_ACTION_NUMBER);
 
-        if (temp != null)
+        if (recievedActionNumberStrings != null)
         {
-            for( PairValue p : temp)
+
+            for( PairValue pValue : recievedActionNumberStrings)
             {
-                String s = dp.get(p.getNodePlace()).getTokens().get(p.getPointPlace()).getValue();
-                if (!s.equals(actionNumber))
+                DataPoint currentPoint = dp.get(pValue.getNodePlace());
+                String s = currentPoint.getTokens().get(pValue.getPointPlace()).getValue();
+
+                // if any node in the current point is not desired to be seen,
+                // the entire node is made invisible.
+                if(!currentPoint.isVisible())
+                    continue;
+
+                if (!s.equals(_actionNumber) && _sameActionNumbersOnly)
                     continue;
 
                 if(lastTime != null)
                 {
-                    LocalTime tempTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
+                    LocalTime tempTime = LocalTime.parse(dp.get(pValue.getNodePlace()).getTimestamp());
                     int seconds = (int) lastTime.until(tempTime, SECONDS);
                     if(seconds > maxVal) maxVal = seconds;
 
@@ -168,7 +186,7 @@ public class DataHolder {
 
 
                 }
-                else lastTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
+                else lastTime = LocalTime.parse(dp.get(pValue.getNodePlace()).getTimestamp());
 
             }
             //todo add filter so the user can choose what to ignore and not.
@@ -176,23 +194,17 @@ public class DataHolder {
                 Integer find = listOfNumbers.get(i);
                 if(find == null) {
 
-                    XYChart.Data toAdd = new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0));
+                    XYChart.Data toAdd = new XYChart.Data<>(Integer.valueOf(i).toString(), 0);
                     returnValue.getData().add(toAdd);
-//                    if(listOfNumbers.get(i+1) != null)
-//                    {
-//                        returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
-//                    }
 
                 }
-                else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), find));
+                else
+                    returnValue.getData().add(new XYChart.Data<>(Integer.valueOf(i).toString(), find));
             }
 
         }
-        else Logger.getGlobal().warning("Could not find meta map for Recieved action numer, aborting");
-//        if(maxVal > stopVal)
-//        {
-//            System.out.println("Hi.");
-//        }
+        else
+            Logger.getGlobal().warning("Could not find meta map for Recieved action numer, aborting");
 
         return returnValue;
     }

@@ -41,6 +41,8 @@ public class TabFactory {
             e.printStackTrace();
         }
 
+        for (DataPoint dPoint : datters.getDataPoints())
+            dPoint.checkVisible();
 
         tabby.setContent(main);
         datters.calculateTimesGeneric();
@@ -115,7 +117,7 @@ public class TabFactory {
         else
         {
             HashMap<String, Integer> tempHash = (HashMap) doot.getUniqueDataNodesAndCount(false, true);
-            TreeMap<String, Integer> tempMap = new TreeMap<>(String .CASE_INSENSITIVE_ORDER);
+            TreeMap<String, Integer> tempMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             ArrayList<String> tempArrayList = new ArrayList();
             tempMap.putAll(tempHash);
             tempMap.forEach((x, y) -> tempArrayList.add(x + ": " + y));
@@ -123,7 +125,7 @@ public class TabFactory {
             TreeView<String> treeView = (TreeView<String>) foundNode;
             TreeItem<String> rootNode = treeView.getRoot();
 
-            _controller.setRollingLog(treeView);
+            _controller.setRollingLog(tv);
 
             ObservableList<TreeItem<String>> obsL = rootNode.getChildren().sorted();
             ArrayList<DataPoint> hold = doot.getDataPoints();
@@ -131,8 +133,10 @@ public class TabFactory {
 
             for (DataPoint d : hold)
             {
-                if (d.getAmountOfVisible() == 0) continue;
-                toDisplay.add(d);
+                d.checkVisible();
+                if (d.isVisible())
+                    toDisplay.add(d);
+
             }
 
 
@@ -193,7 +197,7 @@ public class TabFactory {
 
         for(String s : tempArr)
         {
-            bc.getData().add(dock.calculateIntervalsBetweenActions(s));
+            bc.getData().add(dock.calculateIntervalsBetweenActions(s, true));
         }
 //        bc.getData().addAll(dock.getSeriesOfTimes());
         bc.getXAxis().setAutoRanging(true);

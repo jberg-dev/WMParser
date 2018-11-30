@@ -213,7 +213,7 @@ public class Controller {
                     try {
                         TimeUnit.MICROSECONDS.sleep(5);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        // we don't really care about being interrupted here.
                     }
                 }
                 return null ;
@@ -258,8 +258,11 @@ public class Controller {
                 ArrayList<DataNode> outList = parseAllDataNodes(tempArr);
 
                 //Create the new DataPoint, add it to the current data management model
-                DataPoint newDataPoint = new DataPoint(moo.getDateHolder(), time, matcher.group(2), outList);
-                moo.addItem(newDataPoint);
+                if (outList.size() > 0)
+                {
+                    DataPoint newDataPoint = new DataPoint(moo.getDateHolder(), time, matcher.group(2), outList);
+                    moo.addItem(newDataPoint);
+                }
 //                System.out.println(newDataPoint.toString());
             }
 
@@ -303,13 +306,15 @@ public class Controller {
 
         for (String x : allDataNodes)
         {
-            parseDataNode(x, rv);
+            Optional<DataNode> got = parseDataNode(x);
+            if (got.isPresent())
+                rv.add(got.get());
         }
 
         return rv;
     }
 
-    private void parseDataNode(String s, ArrayList<DataNode> returnVal) {
+    private Optional<DataNode> parseDataNode(String s) {
 
         if (s.contains("="))
         {
@@ -317,7 +322,7 @@ public class Controller {
            if (out.length == 2)
            {
                if (out[0].contains(ConstantStrings.STARTING.string))
-                    returnVal.add(new DataNode(ConstantStrings.STARTING, out[1]));
+                    return Optional.of(new DataNode(ConstantStrings.STARTING, out[1]));
            }
            else
                LOGGER.log(Level.WARNING, "out.length on containing = were other than 2 on line: " + s);
@@ -327,25 +332,25 @@ public class Controller {
         {
             if (s.length() == 14)
             {
-                returnVal.add(new DataNode(ConstantStrings.ACTION_STRING, "Natural end of action"));
+                return Optional.of(new DataNode(ConstantStrings.NATURAL_END_OF_ACTION, "Natural end of action"));
             }
             else
             {
                 String actionString = s.substring(14);
-                returnVal.add(new DataNode(ConstantStrings.ACTION_STRING, actionString));
+                return Optional.of(new DataNode(ConstantStrings.ACTION_STRING, actionString));
             }
         }
         else if (s.contains("Received action number "))
         {
             String actionNumber = s.substring(23);
-            returnVal.add(new DataNode(ConstantStrings.RECIEVED_ACTION_NUMBER, actionNumber));
+            return Optional.of(new DataNode(ConstantStrings.RECIEVED_ACTION_NUMBER, actionNumber));
         }
         else if (s.contains("action"))
         {
             String[] out = s.split(" ");
 
             if (out.length == 2)
-                returnVal.add(new DataNode(ConstantStrings.ACTION_NUMBER, out[1]));
+                return Optional.of(new DataNode(ConstantStrings.ACTION_NUMBER, out[1]));
             else
                 LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
 
@@ -355,7 +360,7 @@ public class Controller {
             String[] out = s.split(" ");
 
             if (out.length == 2)
-                returnVal.add(new DataNode(ConstantStrings.SOURCE, out[1]));
+                return Optional.of(new DataNode(ConstantStrings.SOURCE, out[1]));
             else
                 LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
 
@@ -366,24 +371,25 @@ public class Controller {
             String[] out = s.split(" ");
 
             if (out.length == 2)
-                returnVal.add(new DataNode(ConstantStrings.TARGET, out[1]));
+                return Optional.of(new DataNode(ConstantStrings.TARGET, out[1]));
             else
                 LOGGER.log(Level.WARNING, "out.length were other than 2 on line: " + s);
 
         }
         else if (s.contains("Frozen. Ignoring."))
         {
-            returnVal.add(new DataNode(ConstantStrings.FROZEN_IGNORING, s));
+            return Optional.of(new DataNode(ConstantStrings.FROZEN_IGNORING, s));
         }
         else if (s.contains("time left "))
         {
             String timeLeft = s.substring(10);
-            returnVal.add(new DataNode(ConstantStrings.TIME_LEFT, timeLeft));
+            return Optional.of(new DataNode(ConstantStrings.TIME_LEFT, timeLeft));
         }
         else if(s.contains("Found 0 triggers.")) {
-//            String number = s.substring(6, 7);
-//            returnVal.add(new DataNode("Found triggers", number));
-//            if(testing) System.out.println("Ignoring: "+s);
+            String number = s.substring(6, 7);
+            DataNode dn = new DataNode(ConstantStrings.FOUND_TRIGGERS, number);
+//            dn.setInvisible();
+            return Optional.of(dn);
         }
 //        else if(s.contains("macroquestion timeout. ")) {
 //            String quack = s.substring(24);
@@ -407,6 +413,7 @@ public class Controller {
 //        }
 
         else LOGGER.log(Level.WARNING, "Reached catch-all on parsing with line: " + s);
+        return Optional.empty();
     }
 
     /*
@@ -448,10 +455,13 @@ public class Controller {
                     e.printStackTrace();
                 }
             }
-            else LOGGER.info("No file selected, doing nothing.");
+            else
+                LOGGER.info("No file selected, doing nothing.");
 
         }
-        else LOGGER.severe("Not on a tab with a graph. Doing nothing.");
+        else
+            if (testing)
+                LOGGER.severe("Not on a tab with a graph. Doing nothing.");
     }
 
 
