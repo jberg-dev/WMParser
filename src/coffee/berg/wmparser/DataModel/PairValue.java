@@ -5,6 +5,8 @@ package coffee.berg.wmparser.DataModel;
  *
  * Acts as an index in the dataPoint map of the DataHolder.
  *
+ * Immutable.
+ *
  */
 public class PairValue implements Comparable<PairValue>{
     private short nodePlace;
@@ -19,18 +21,9 @@ public class PairValue implements Comparable<PairValue>{
         return nodePlace;
     }
 
-    public void setNodePlace(short nodePlace) {
-        this.nodePlace = nodePlace;
-    }
-
     public byte getPointPlace() {
         return pointPlace;
     }
-
-    public void setPointPlace(byte pointPlace) {
-        this.pointPlace = pointPlace;
-    }
-
 
     @Override
     public int compareTo(PairValue pv) {
