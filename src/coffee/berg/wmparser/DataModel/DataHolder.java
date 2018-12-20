@@ -1,6 +1,7 @@
 package coffee.berg.wmparser.DataModel;
 
 import coffee.berg.wmparser.ConstantStrings;
+import coffee.berg.wmparser.GenericTabController;
 import javafx.scene.chart.XYChart;
 
 import java.time.LocalTime;
@@ -16,6 +17,9 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  *
  */
 public class DataHolder {
+
+    private static final Logger logger = Logger.getLogger(DataHolder.class.getName());
+
     private String name;
     private ArrayList<DataPoint> dp;
     private HashMap<ConstantStrings, ArrayList<PairValue>> metaMap;
@@ -28,13 +32,21 @@ public class DataHolder {
         this.ignoreList = new HashMap<>();
     }
 
+    /*
+        Adding DataPoints this way is to build a meta map of what fixed string tokens can
+        be found where, which lets us forgo a constant iteration over all the points.
+
+        The application is intended to easily and constantly be able to change what parts of
+        the data is taken into consideration when calculating the graphs, so this should,
+        in theory, save quite a bit of computation time.
+     */
     public boolean addDataPoint(DataPoint d)
     {
         byte iterate = 0;
         for (DataNode temp : d.getTokens())
         {
-            ArrayList<PairValue> tempArr = metaMap.get(temp.getKey());
-            if (tempArr == null)
+            ArrayList<PairValue> indexArr = metaMap.get(temp.getKey());
+            if (indexArr == null)
             {
                 ArrayList<PairValue> init = new ArrayList<>();
                 init.add(new PairValue((short) dp.size(), iterate++));
@@ -42,43 +54,31 @@ public class DataHolder {
             }
             else
             {
-                tempArr.add(new PairValue((short) dp.size(), iterate++));
+                indexArr.add(new PairValue((short) dp.size(), iterate++));
             }
         }
         return dp.add(d);
     }
-
-    public boolean ignoreDataPoint(ConstantStrings _type, String _value)
+    /*
+        If you ever get to the point of needing to add an extra token to a DataPoint, you have
+        to make sure that it gets properly indexed too.
+     */
+    private void addExtraToken(DataPoint _d, DataNode _node)
     {
+        ArrayList<PairValue> indexArr = metaMap.get(_node.getKey());
 
-        ArrayList<PairValue> temp = metaMap.get(_type);
+        if (indexArr == null)
+        {
+            ArrayList<PairValue> init = new ArrayList<>();
+            init.add(new PairValue((short) dp.size(), (byte) _d.getTokens().size()));
+            metaMap.put(_node.getKey(), init);
+        }
+        else
+        {
+            indexArr.add(new PairValue((short) dp.size(), (byte) _d.getTokens().size()));
+        }
 
-//        if(metaMap.get(_type) != null)
-//        {
-//            for( PairValue p : temp)
-//            {
-//                String s = dp.get(p.getNodePlace()).getTokens().get(p.getPointPlace()).getValue();
-//                if (!s.equals(actionNumber))
-//                    continue;
-//
-//                if(lastTime != null)
-//                {
-//                    LocalTime tempTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
-//                    int seconds = (int) lastTime.until(tempTime, SECONDS);
-//                    if(seconds > maxVal) maxVal = seconds;
-//
-//                    Integer count = listOfNumbers.get(seconds);
-//                    listOfNumbers.put(seconds, (count == null) ? 1 : count + 1);
-//                    lastTime = tempTime;
-//
-//
-//                }
-//                else lastTime = LocalTime.parse(dp.get(p.getNodePlace()).getTimestamp());
-//
-//            }
-//        }
-
-        return false;
+        _d.getTokens().add(_node);
     }
 
     public String getName() {
@@ -89,29 +89,57 @@ public class DataHolder {
         return this.dp;
     }
 
-    public void calculateTimesGeneric () {
-        ArrayList<DataNode> tempArr = new ArrayList();
-        LocalTime lastTime = null;
-        int iterateFail = 0;
-        int iterateSucceed = 0;
-
-        // get all tokens, add to temporary array
-        for(DataPoint d : dp) {
-            Optional o = d.getTokens().stream().filter(x -> x.getKey().equals(ConstantStrings.RECIEVED_ACTION_NUMBER)).findFirst();
-            if(o.isPresent())
-            {
-                if(lastTime != null) {
-                    LocalTime tempTime = LocalTime.parse(d.getTimestamp());
-                    long seconds = lastTime.until(tempTime, SECONDS);
-                    d.addToken(new DataNode(ConstantStrings.NAME_OF_MACRO_TIME_STRING, Long.toString(seconds)));
-                    lastTime = tempTime;
-                }
-                else lastTime = LocalTime.parse(d.getTimestamp());
-                iterateSucceed++;
-            }
-            else iterateFail++;
+    private boolean checkSoDataPointDoesNotHaveToken(DataPoint _d, ConstantStrings _cs)
+    {
+        for (DataNode dn : _d.getTokens())
+        {
+            if (dn.getKey() == _cs)
+                return true;
         }
-        System.out.println("Failed to calculate "+ iterateFail + " times since the line was irrelevant. Succeeded with "+ iterateSucceed +" actions.");
+
+        return false;
+    }
+
+    public void calculateTimesGeneric () {
+        LocalTime lastTime = null;
+
+        // get all tokens from the meta map index
+        ArrayList<PairValue> index = metaMap.get(ConstantStrings.RECIEVED_ACTION_NUMBER);
+
+        for (int i = 0; i < index.size(); i++)
+        {
+            DataPoint d = dp.get(index.get(i).getNodePlace());
+
+            if (d == null)
+            {
+                logger.severe("the datapoint d is null. i=" + i);
+                continue;
+            }
+
+            // We do not want to have multiple tokens of this on a single DP.
+            // If you want to re-calculate and update the time string, make a new method lazy.
+            if (checkSoDataPointDoesNotHaveToken(d, ConstantStrings.NAME_OF_MACRO_TIME_STRING))
+                continue;
+
+            if(lastTime != null) {
+                LocalTime tempTime = LocalTime.parse(d.getTimestamp());
+                long seconds = lastTime.until(tempTime, SECONDS);
+
+                DataNode tempo = new DataNode(ConstantStrings.NAME_OF_MACRO_TIME_STRING, Long.toString(seconds));
+                addExtraToken(d, tempo);
+
+                lastTime = tempTime;
+            }
+            else
+            {
+                DataNode tempo = new DataNode(ConstantStrings.NAME_OF_MACRO_TIME_STRING, "0");
+                addExtraToken(d, tempo);
+
+                lastTime = LocalTime.parse(d.getTimestamp());
+            }
+        }
+
+//        System.out.println("Failed to calculate "+ iterateFail + " times since the line was irrelevant. Succeeded with "+ iterateSucceed +" actions.");
     }
 
     public ArrayList<String> getUniqueActionNumbers()
