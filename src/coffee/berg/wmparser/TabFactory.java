@@ -46,9 +46,9 @@ public class TabFactory {
 
         controller.setUp(tabby, datters);
 
-        controller.initializeListOfActions(datters);
-        controller.initializeRollingLog(datters);
-        controller.initializeBarChart(datters);
+        controller.initializeListOfActions();
+        controller.initializeRollingLog();
+        controller.initializeBarChart();
 
         return Optional.of(new Pair(tabby, controller));
     }
