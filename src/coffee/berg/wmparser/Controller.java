@@ -314,6 +314,13 @@ public class Controller {
         return rv;
     }
 
+    /**
+     * TODO: Make the splitting generic instead of hardcoded!
+     *
+     * @param s The raw line logged to the log file
+     * @return
+     */
+
     private Optional<DataNode> parseDataNode(String s) {
 
         if (s.contains("="))
