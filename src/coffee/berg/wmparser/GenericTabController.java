@@ -1,6 +1,7 @@
 package coffee.berg.wmparser;
 
 import coffee.berg.wmparser.DataModel.DataHolder;
+import coffee.berg.wmparser.DataModel.DataNode;
 import coffee.berg.wmparser.DataModel.DataPoint;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,11 +21,10 @@ import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.TreeMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -32,44 +32,56 @@ import java.util.logging.Logger;
  */
 public class GenericTabController
 {
+	private static final Logger logger = Logger.getLogger(GenericTabController.class.getName());
+
 	@FXML
 	private Button tstBtn;
 
-	private XYChart chart;
+	private StackPane listOfActions;
 	private TableView rollingLog;
+	private StackedBarChart chart;
+
 	private TreeMap tree;
+	private TreeItem<String> rootNode;
+	private TreeView<String> treeView;
+
+	private DataHolder data;
+
 	private Tab _thisTab;
 
-	public void initialize()
+	public void setUp(final Tab _t, final DataHolder _dh)
 	{
+		data = _dh;
+		_thisTab = _t;
 
+		Node n = _thisTab.getContent();
+		Node listofActions = n.lookup("#ListOfActions");
+		Node rollingLog = n.lookup("#RollingLog");
+		Node graph = n.lookup("#Graph");
+
+		this.chart = (StackedBarChart) graph;
+		this.rollingLog = (TableView) rollingLog;
+		this.listOfActions = (StackPane) listofActions;
+
+		rootNode = new TreeItem("Actions");
+		rootNode.setExpanded(true);
+		treeView = new TreeView<>(rootNode);
+		treeView.setId("TreeView");
+		treeView.setEditable(true);
+		treeView.setShowRoot(false);
+
+		tree = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	}
 
 	@FXML
 	public void testButton()
 	{
-		Random random = new Random(System.currentTimeMillis());
-		chart.getData().remove(random.nextInt(chart.getData().size()-1));
-	}
+//		Random random = new Random(System.currentTimeMillis());
+//		chart.getData().remove(random.nextInt(chart.getData().size()-1));
 
-	void setChart(XYChart _chart)
-	{
-		this.chart = _chart;
-	}
-
-	void setRollingLog(TableView _rollingLog)
-	{
-		this.rollingLog = _rollingLog;
-	}
-
-	void setTreeView(TreeMap _tree)
-	{
-		this.tree = _tree;
-	}
-
-	void setTab(Tab _t)
-	{
-		this._thisTab = _t;
+		ArrayList testList = new ArrayList();
+		testList.add(new DataNode(ConstantStrings.NATURAL_END_OF_ACTION, "boop"));
+		rollingLog.getItems().add(new DataPoint(LocalDate.now(), "test", "macroer", testList));
 	}
 
 	void handleClickedTreeleaf(CheckBoxTreeItem _item)
@@ -77,29 +89,13 @@ public class GenericTabController
 
 	}
 
-	void setListOfActions(DataHolder hudder) {
+	void initializeListOfActions ()
+	{
 
-		Node n = _thisTab.getContent();
-		Node listofActions = n.lookup("#ListOfActions");
-
-		StackPane lv = (StackPane) listofActions;
-
-		TreeItem<String> rootNode = new TreeItem("Actions");
-		rootNode.setExpanded(true);
-		TreeView<String> treeView = new TreeView<>(rootNode);
-		treeView.setId("TreeView");
-		treeView.setEditable(true);
-		treeView.setShowRoot(false);
-
-		HashMap<String, Integer> hm = (HashMap) hudder.getUniqueDataNodesAndCount(true, false);
-		TreeMap<String, Integer> tree = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		HashMap<String, Integer> hm = (HashMap) data.getUniqueDataNodesAndCount(true, false);
 		tree.putAll(hm);
 
-		if (tree != null)
-		{
-			setTreeView(tree);
-		}
-
+		//TODO investigate making a more dynamic class that can easier represent number of visible.
 		ArrayList<String> al = new ArrayList<>();
 		tree.forEach((x, y) -> al.add(x + ": " + y));
 
@@ -111,117 +107,103 @@ public class GenericTabController
 			rootNode.getChildren().add(childNode);
 		}
 
-		lv.getChildren().add(treeView);
+		listOfActions.getChildren().add(treeView);
 
 	}
 
-	void setRollingLog(DataHolder doot) {
-		Node n = _thisTab.getContent();
+	void initializeRollingLog ()
+	{
 
-		Node rollingLog = n.lookup("#RollingLog");
-		Node listofActions = n.lookup("#ListOfActions");
+		HashMap<String, Integer> tempHash = (HashMap) data.getUniqueDataNodesAndCount(false, true);
+		TreeMap<String, Integer> tempMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		ArrayList<String> tempArrayList = new ArrayList();
+		tempMap.putAll(tempHash);
+		tempMap.forEach((x, y) -> tempArrayList.add(x + ": " + y));
 
-		TableView tv = (TableView) rollingLog;
-		StackPane lv = (StackPane) listofActions;
+		Node foundNode = listOfActions.lookup("#TreeView");
 
-		Node foundNode = lv.lookup("#TreeView");
-
-		if(foundNode == null)
+		if (foundNode == null)
 		{
-			Logger.getGlobal().log(Level.SEVERE, "Never update rollinglog before you have updated list of actions");
-			return;
+			logger.severe("Never update RollingLog before you have updated list of actions");
 		}
-		else
+
+		TreeView<String> treeView = (TreeView<String>) foundNode;
+		TreeItem<String> rootNode = treeView.getRoot();
+
+		ObservableList<TreeItem<String>> obsL = rootNode.getChildren().sorted();
+		ArrayList<DataPoint> hold = data.getDataPoints();
+		ArrayList<DataPoint> toDisplay = new ArrayList<>();
+
+		for (DataPoint d : hold)
 		{
-			HashMap<String, Integer> tempHash = (HashMap) doot.getUniqueDataNodesAndCount(false, true);
-			TreeMap<String, Integer> tempMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			ArrayList<String> tempArrayList = new ArrayList();
-			tempMap.putAll(tempHash);
-			tempMap.forEach((x, y) -> tempArrayList.add(x + ": " + y));
+			d.checkVisible();
+			if (d.isVisible())
+				toDisplay.add(d);
 
-			TreeView<String> treeView = (TreeView<String>) foundNode;
-			TreeItem<String> rootNode = treeView.getRoot();
-
-			setRollingLog(tv);
-
-			ObservableList<TreeItem<String>> obsL = rootNode.getChildren().sorted();
-			ArrayList<DataPoint> hold = doot.getDataPoints();
-			ArrayList<DataPoint> toDisplay = new ArrayList<>();
-
-			for (DataPoint d : hold)
-			{
-				d.checkVisible();
-				if (d.isVisible())
-					toDisplay.add(d);
-
-			}
+		}
 
 
-			for(String s : tempArrayList) {
-				boolean found = false;
-				for(TreeItem<String> node : obsL) {
+		for(String s : tempArrayList) {
+			boolean found = false;
+			for(TreeItem<String> node : obsL) {
 
-					String[] matchThis = node.getValue().split(": ");
-					if(matchThis.length == 2)
-					{
+				String[] matchThis = node.getValue().split(": ");
+				if(matchThis.length == 2)
+				{
 
-						if(s.contains(matchThis[0])) {
-							CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem(s);
-							newLeaf.setSelected(true);
-							newLeaf.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(),
-									e -> handleClickedTreeleaf(newLeaf));
-							node.getChildren().add(newLeaf);
-							found = true;
-						}
+					if(s.contains(matchThis[0])) {
+						CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem(s);
+						newLeaf.setSelected(true);
+						newLeaf.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(),
+								e -> handleClickedTreeleaf(newLeaf));
+						node.getChildren().add(newLeaf);
+						found = true;
 					}
-					else System.out.println("not match this! "+ node.getValue());
-
-
 				}
-				if(!found && Controller.testing) System.out.println("Couldn't find container for: "+ s);
+				else System.out.println("not match this! "+ node.getValue());
+
 
 			}
+			if(!found && Controller.testing) System.out.println("Couldn't find container for: "+ s);
 
-			TableColumn dateColumn = new TableColumn("Date");
-			TableColumn timeColumn = new TableColumn("Time");
-			TableColumn dataColumn = new TableColumn("Data");
-
-			dateColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("date"));
-			timeColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("timestamp"));
-			dataColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("tokens"));
-
-			ObservableList obs = FXCollections.observableArrayList(toDisplay);
-
-			tv.setItems(obs);
-			tv.setEditable(true);
-			tv.getColumns().addAll(dateColumn, timeColumn, dataColumn);
 		}
+
+		TableColumn dateColumn = new TableColumn("Date");
+		TableColumn timeColumn = new TableColumn("Time");
+		TableColumn dataColumn = new TableColumn("Data");
+
+		dateColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("date"));
+		timeColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("timestamp"));
+		dataColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("tokens"));
+
+		ObservableList obs = FXCollections.observableArrayList(toDisplay);
+
+		rollingLog.setItems(obs);
+		rollingLog.setEditable(true);
+		rollingLog.getColumns().addAll(dateColumn, timeColumn, dataColumn);
+
 	}
 
-	boolean updateBarChart(DataHolder dock) {
-		Node n = _thisTab.getContent();
-		Node graph = n.lookup("#Graph");
-		StackedBarChart bc = (StackedBarChart) graph;
-		setChart(bc);
-
+	void initializeBarChart ()
+	{
 		//Barchart
-		bc.setTitle("Summary");
-		bc.getData().clear();
-		bc.setLegendVisible(true);
-		bc.setCategoryGap(1);
+		chart.setTitle("Summary");
+		chart.getData().clear();
+		chart.setLegendVisible(true);
+		chart.setCategoryGap(1);
 
-		ArrayList<String> tempArr = dock.getUniqueActionNumbers();
+		ArrayList<String> tempArr = data.getUniqueActionNumbers();
 
 		for(String s : tempArr)
 		{
-			bc.getData().add(dock.calculateIntervalsBetweenActions(s, true));
+			chart.getData().add(data.calculateIntervalsBetweenActions(s, true));
 		}
-//        bc.getData().addAll(dock.getSeriesOfTimes());
-		bc.getXAxis().setAutoRanging(true);
-		bc.getYAxis().setAutoRanging(true);
+//        chart.getData().addAll(dock.getSeriesOfTimes());
+		chart.getXAxis().setAutoRanging(true);
+		chart.getYAxis().setAutoRanging(true);
 
 
-		ObservableList<XYChart.Series> xys = bc.getData();
+		ObservableList<XYChart.Series> xys = chart.getData();
 		for(XYChart.Series<String,Number> series : xys) {
 			ArrayList<XYChart.Data> removelist = new ArrayList<>();
 
@@ -239,6 +221,6 @@ public class GenericTabController
 		}
 
 
-		return true;
+		return;
 	}
 }

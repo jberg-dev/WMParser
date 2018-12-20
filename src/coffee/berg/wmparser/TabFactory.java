@@ -3,21 +3,12 @@ package coffee.berg.wmparser;
 import coffee.berg.wmparser.DataModel.DataHolder;
 import coffee.berg.wmparser.DataModel.DataPoint;
 import coffee.berg.wmparser.Generics.Pair;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.chart.*;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTreeCell;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by Bergerking on 2017-05-14.
@@ -53,11 +44,11 @@ public class TabFactory {
         if(controller == null)
             return Optional.empty();
 
-        controller.setTab(tabby);
+        controller.setUp(tabby, datters);
 
-        controller.setListOfActions(datters);
-        controller.setRollingLog(datters);
-        controller.updateBarChart(datters);
+        controller.initializeListOfActions(datters);
+        controller.initializeRollingLog(datters);
+        controller.initializeBarChart(datters);
 
         return Optional.of(new Pair(tabby, controller));
     }
