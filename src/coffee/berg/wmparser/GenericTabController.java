@@ -7,6 +7,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
@@ -23,7 +25,12 @@ import javafx.scene.layout.StackPane;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
@@ -79,9 +86,19 @@ public class GenericTabController
 //		Random random = new Random(System.currentTimeMillis());
 //		chart.getData().remove(random.nextInt(chart.getData().size()-1));
 
-		ArrayList testList = new ArrayList();
-		testList.add(new DataNode(ConstantStrings.NATURAL_END_OF_ACTION, "boop"));
-		rollingLog.getItems().add(new DataPoint(LocalDate.now(), "test", "macroer", testList));
+//		ArrayList testList = new ArrayList();
+//		testList.add(new DataNode(ConstantStrings.NATURAL_END_OF_ACTION, "boop"));
+//		rollingLog.getItems().add(new DataPoint(LocalDate.now(), "test", "macroer", testList));
+
+		Random random = new Random(System.currentTimeMillis());
+
+		for (DataPoint dp : data.getDataPoints())
+		{
+			if(random.nextBoolean() || true)
+				dp.toggleVisible();
+		}
+
+		initializeBarChart();
 	}
 
 	void handleClickedTreeleaf(CheckBoxTreeItem _item)
@@ -204,10 +221,12 @@ public class GenericTabController
 
 
 		ObservableList<XYChart.Series> xys = chart.getData();
-		for(XYChart.Series<String,Number> series : xys) {
+		for(XYChart.Series<String,Number> series : xys)
+		{
 			ArrayList<XYChart.Data> removelist = new ArrayList<>();
 
-			for(XYChart.Data<String,Number> data : series.getData()) {
+			for(XYChart.Data<String,Number> data : series.getData())
+			{
 				if(data.getYValue().equals(0)) removelist.add(data);
 			}
 

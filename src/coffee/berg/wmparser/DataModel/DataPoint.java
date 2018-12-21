@@ -49,7 +49,6 @@ public class DataPoint {
 
     public void toggleVisible() { this.visible = !this.visible; }
 
-    public void addToken(DataNode n) { this.tokens.add(n); }
     public List<DataNode> getTokens() {
         return this.tokens;
     }
@@ -81,6 +80,7 @@ public class DataPoint {
     {
         if (tokens.size() == 0)
             visible = false;
+        //TODO add more so this method isn't useless.
     }
 
     public boolean isVisible() {

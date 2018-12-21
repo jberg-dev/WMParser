@@ -1,6 +1,7 @@
 package coffee.berg.wmparser.DataModel;
 
 import coffee.berg.wmparser.ConstantStrings;
+import coffee.berg.wmparser.Controller;
 import coffee.berg.wmparser.GenericTabController;
 import javafx.scene.chart.XYChart;
 
@@ -65,6 +66,15 @@ public class DataHolder {
      */
     private void addExtraToken(DataPoint _d, DataNode _node)
     {
+        // We do not want to have multiple same-string tokens on a single DP.
+        // If you want to re-calculate and update the time string, make a new method lazy.
+        if (checkSoDataPointDoesNotHaveToken(_d, _node.getKey()))
+        {
+            if (Controller.testing)
+                logger.fine("Skipping adding extra token " + _node.getKey() + " to " + _d.toString());
+            return;
+        }
+
         ArrayList<PairValue> indexArr = metaMap.get(_node.getKey());
 
         if (indexArr == null)
@@ -115,11 +125,6 @@ public class DataHolder {
                 logger.severe("the datapoint d is null. i=" + i);
                 continue;
             }
-
-            // We do not want to have multiple tokens of this on a single DP.
-            // If you want to re-calculate and update the time string, make a new method lazy.
-            if (checkSoDataPointDoesNotHaveToken(d, ConstantStrings.NAME_OF_MACRO_TIME_STRING))
-                continue;
 
             if(lastTime != null) {
                 LocalTime tempTime = LocalTime.parse(d.getTimestamp());
@@ -214,11 +219,12 @@ public class DataHolder {
 
 
                 }
-                else lastTime = LocalTime.parse(dp.get(pValue.getNodePlace()).getTimestamp());
+                else
+                    lastTime = LocalTime.parse(dp.get(pValue.getNodePlace()).getTimestamp());
 
             }
             //todo add filter so the user can choose what to ignore and not.
-            for(int i = 2; i <= maxVal; i++) {
+            for(int i = 0; i <= maxVal; i++) {
                 Integer find = listOfNumbers.get(i);
                 if(find == null) {
 

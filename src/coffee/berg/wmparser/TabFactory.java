@@ -52,11 +52,4 @@ public class TabFactory {
 
         return Optional.of(new Pair(tabby, controller));
     }
-
-
-
-
-
-
-
 }
