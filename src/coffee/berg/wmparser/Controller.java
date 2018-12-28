@@ -25,6 +25,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 import java.util.regex.Matcher;
@@ -60,6 +62,8 @@ public class Controller {
     private String DataPointSharedUUID;
     private DataManagementModel dmm = new DataManagementModel();
     private ArrayList<Pair<Tab, GenericTabController>> tabsAndControllers;
+    final static Timer timer = new Timer("Keep Graphs Sorted", true);
+
 
     // Patterns so we don't compile them all the time.
     private static Pattern datePattern = Pattern.compile("(^.*)(\\d{4}-\\d{2}-\\d{2})");
@@ -428,6 +432,7 @@ public class Controller {
      */
     @FXML
     public void Exit(){
+        timer.cancel();
         System.exit(0);
     }
 

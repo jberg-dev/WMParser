@@ -2,6 +2,8 @@ package coffee.berg.wmparser;
 
 import coffee.berg.wmparser.DataModel.DataHolder;
 import coffee.berg.wmparser.DataModel.DataPoint;
+import coffee.berg.wmparser.DataModel.PairValue;
+import coffee.berg.wmparser.Generics.Pair;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,6 +29,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,25 +56,20 @@ public class GenericTabController
 	private DataHolder data;
 
 	private Tab _thisTab;
-	final static ExecutorService executor = Executors.newCachedThreadPool();
 
-	Task<Void> sortingTask = new Task<Void>() {
-		@Override protected Void call() throws Exception {
-			while(!isCancelled())
+	TimerTask sortingTask = new TimerTask() {
+		@Override
+		public void run()
+		{
+			try
 			{
-				try
-				{
-					CategoryAxis cat = (CategoryAxis) chart.getXAxis();
-					cat.getCategories().sort((a,b) -> Integer.compare(Integer.parseInt(a), Integer.parseInt(b)));
-				} catch (Exception e)
-				{
-					if (Controller.testing)
-						System.out.println(e.toString());
-				}
-				Thread.sleep(1000);
+				CategoryAxis cat = (CategoryAxis) chart.getXAxis();
+				cat.getCategories().sort((a,b) -> Integer.compare(Integer.parseInt(a), Integer.parseInt(b)));
+			} catch (Exception e)
+			{
+				if (Controller.testing)
+					System.out.println(e.toString());
 			}
-
-			return null;
 		}
 	};
 
@@ -99,60 +97,31 @@ public class GenericTabController
 		tree = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	}
 
-	private boolean maybe = true;
-
-	private int count = 0;
+	private boolean alreadyRunning = false;
 
 	@FXML
 	public void testButton()
 	{
-//		Random random = new Random(System.currentTimeMillis());
-//		chart.getData().remove(random.nextInt(chart.getData().size()-1));
-
-//		ArrayList testList = new ArrayList();
-//		testList.add(new DataNode(ConstantStrings.NATURAL_END_OF_ACTION, "boop"));
-//		rollingLog.getItems().add(new DataPoint(LocalDate.now(), "test", "macroer", testList));
-
-//		Random random = new Random(System.currentTimeMillis());
-//
-//		for (DataPoint dp : data.getDataPoints())
-//		{
-//			if(random.nextBoolean() || true)
-//				dp.toggleVisible();
-//		}
-
-//		initializeBarChart(maybe);
-//		maybe = !maybe;
-
-//		Node n = _thisTab.getContent().lookup("#Graph");
-//		Node n2 = n.getParent();
-//		if (n2 instanceof VBox)
-//		{
-//			VBox vb = (VBox) n2;
-//
-//			StackedBarChart<String, Number> hold = initializeBarChart(false);
-//			vb.getChildren().set(0, hold);
-//
-//			chart = hold;
-//
-//		}
-//		else
-//		{
-//			System.out.println("Shit.");
-//		}
+		initializeBarChart(true);
 	}
 
 	@FXML
 	public void testButton2()
 	{
-		CategoryAxis cat = (CategoryAxis) chart.getXAxis();
-		cat.getCategories().sort((a,b) -> Integer.compare(Integer.parseInt(a), Integer.parseInt(b)));
-		return;
+		initializeBarChart(false);
 	}
 
 	void handleClickedTreeleaf(CheckBoxTreeItem<String> _item)
+//	void handleClickedTreeleaf(CheckBoxTreeItem<Pair<ConstantStrings, String>> _item)
 	{
-		logger.info("" + _item.getValue());
+		if(_item.isSelected())
+		{
+//			data.ignoreWord(_item.getValue().getFirst(), _item.getValue().getSecond());
+		}
+		else
+		{
+//			data.appreciateWordAgain(_item.getValue().getFirst(), _item.getValue().getSecond());
+		}
 	}
 
 	void initializeListOfActions ()
@@ -204,10 +173,8 @@ public class GenericTabController
 
 		for (DataPoint d : hold)
 		{
-			d.checkVisible();
 			if (d.isVisible())
 				toDisplay.add(d);
-
 		}
 
 
@@ -276,45 +243,46 @@ public class GenericTabController
 		Node n2 = n.getParent();
 		if (n2 instanceof VBox)
 		{
-			VBox vb = (VBox) n2;
+			makeBarChart(_sameNumbersOnly);
 
-			StackedBarChart<String, Number> hold = makeBarChart(false);
-			vb.getChildren().set(0, hold);
-
-			chart = hold;
-
-			if (!sortingTask.isRunning())
+			if (!alreadyRunning)
 			{
-				executor.submit(sortingTask);
+				Controller.timer.scheduleAtFixedRate(sortingTask, 0, 1000);
+				alreadyRunning = !alreadyRunning;
 			}
-
-			return;
-
+			((VBox) n2).layout();
 		}
+		else
+			System.out.println("Shit!");
+
 	}
 
 	StackedBarChart<String, Number> makeBarChart(final boolean _sameNumbersOnly)
 	{
-		CategoryAxis xAxis = new CategoryAxis();
-		NumberAxis yAxis = new NumberAxis();
-		StackedBarChart<String, Number> test = new StackedBarChart<String, Number>(xAxis, yAxis);
-
-
-
+//		CategoryAxis xAxis = new CategoryAxis();
+//		NumberAxis yAxis = new NumberAxis();
+//		StackedBarChart<String, Number> chart = new StackedBarChart<String, Number>(xAxis, yAxis);
 
 		//Barchart
-		test.setTitle("Summary");
-		test.getData().clear();
-		test.layout();
-		test.setLegendVisible(true);
-		test.setCategoryGap(1);
+		chart.setTitle("Summary");
+		chart.getData().clear();
+		chart.layout();
+		chart.setLegendVisible(true);
+		chart.setCategoryGap(1);
 
 //		XYChart.Series<String, Number> bs = bullshit();
 //		test.getData().add(bs);
 
 		if (_sameNumbersOnly)
 		{
-//			test.getData().add(data.calculateIntervalsBetweenActions("", false));
+			XYChart.Series<String, Number> currentSeries = new XYChart.Series<>();
+			currentSeries.setData(
+					FXCollections.observableArrayList(
+							data.calculateIntervalsBetweenActions("", false)
+					)
+			);
+			currentSeries.setName("");
+			chart.getData().add(currentSeries);
 		}
 		else
 		{
@@ -329,15 +297,15 @@ public class GenericTabController
 						)
 				);
 				currentSeries.setName(s);
-				test.getData().add(currentSeries);
+				chart.getData().add(currentSeries);
 			}
 		}
-//        chart.getData().addAll(dock.getSeriesOfTimes());
-		test.getXAxis().setAutoRanging(true);
-		test.getYAxis().setAutoRanging(true);
+
+		chart.getXAxis().setAutoRanging(true);
+		chart.getYAxis().setAutoRanging(true);
 
 
-		ObservableList<XYChart.Series<String, Number>> xys = test.getData();
+		ObservableList<XYChart.Series<String, Number>> xys = chart.getData();
 		for(XYChart.Series<String,Number> series : xys)
 		{
 			ArrayList<XYChart.Data> removelist = new ArrayList<>();
@@ -360,6 +328,6 @@ public class GenericTabController
 		}
 
 
-		return test;
+		return chart;
 	}
 }

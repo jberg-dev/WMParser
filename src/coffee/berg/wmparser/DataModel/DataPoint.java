@@ -76,24 +76,30 @@ public class DataPoint {
         this.tokens = tokens;
     }
 
-    public void checkVisible()
+    public void checkVisibility ()
     {
         if (tokens.size() == 0)
+        {
             visible = false;
-        //TODO add more so this method isn't useless.
-    }
-
-    public boolean isVisible() {
-
+            return;
+        }
         if (tokens != null)
         {
             for (DataNode n : tokens)
             {
-                if (!n.getVisibility())
+                if (n.isInvisible())
+                {
                     visible = false;
+                    return;
+                }
             }
         }
 
+        visible = true;
+    }
+
+    public boolean isVisible()
+    {
         return visible;
     }
 

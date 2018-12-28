@@ -42,8 +42,8 @@ public class DataNode {
     }
 
     public void setInvisible() { this.visible = false; };
-    public void setVisible() { this.visible = true; }
-    public boolean getVisibility() { return this.visible; }
+    public void setCanSee () { this.visible = true; }
+    public boolean isInvisible () { return !visible; }
 
     @Override
     public String toString() {

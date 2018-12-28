@@ -2,7 +2,6 @@ package coffee.berg.wmparser.DataModel;
 
 import coffee.berg.wmparser.ConstantStrings;
 import coffee.berg.wmparser.Controller;
-import coffee.berg.wmparser.GenericTabController;
 import javafx.scene.chart.XYChart;
 
 import java.time.LocalTime;
@@ -24,13 +23,13 @@ public class DataHolder {
     private String name;
     private ArrayList<DataPoint> dp;
     private HashMap<ConstantStrings, ArrayList<PairValue>> metaMap;
-    private HashMap<String, ArrayList<PairValue>> ignoreList;
+    private ArrayList<String> ignoreList;
 
     public DataHolder(String name) {
         this.name = name;
         this.dp = new ArrayList<>();
         this.metaMap = new HashMap<>();
-        this.ignoreList = new HashMap<>();
+        this.ignoreList = new ArrayList<>();
     }
 
     /*
@@ -97,6 +96,48 @@ public class DataHolder {
 
     public ArrayList<DataPoint> getDataPoints() {
         return this.dp;
+    }
+
+    public void ignoreWord(final ConstantStrings _in, final String _subject)
+    {
+        ArrayList<PairValue> temp = metaMap.get(_in);
+        if(temp != null)
+        {
+            for (PairValue pv : temp)
+            {
+                DataPoint parent = dp.get(pv.getPointPlace());
+                DataNode what = parent.getTokens().get(pv.getPointPlace());
+                if (what.getValue().equals(_subject))
+                {
+                    what.setInvisible();
+                    parent.checkVisibility();
+                }
+            }
+        }
+        else
+            if(Controller.testing)
+                logger.info("Map get was null for " + _in.string);
+    }
+
+    public void appreciateWordAgain(final ConstantStrings _in, final String _subject)
+    {
+        ArrayList<PairValue> temp = metaMap.get(_in);
+        if(temp != null)
+        {
+            for (PairValue pv : temp)
+            {
+                DataPoint parent = dp.get(pv.getPointPlace());
+                DataNode what = parent.getTokens().get(pv.getPointPlace());
+                if (what.getValue().equals(_subject))
+                {
+                    what.setCanSee();
+                    parent.checkVisibility();
+                }
+            }
+        }
+        else
+        if(Controller.testing)
+            logger.info("Map get was null for " + _in.string);
     }
 
     private boolean checkSoDataPointDoesNotHaveToken(DataPoint _d, ConstantStrings _cs)

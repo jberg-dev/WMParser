@@ -22,8 +22,8 @@
                 <StackPane fx:id="ListOfActions" prefWidth="200" maxHeight="Infinity" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                 </StackPane>
                 <HBox>
-                    <Button fx:id="tstBtn" text="Test" onAction="#testButton" alignment="BOTTOM_CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
-                    <Button fx:id="tstBtn2" text="Test2" onAction="#testButton2" alignment="BOTTOM_CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
+                    <Button fx:id="tstBtn" text="All in one" onAction="#testButton" alignment="BOTTOM_CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
+                    <Button fx:id="tstBtn2" text="On their own" onAction="#testButton2" alignment="BOTTOM_CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
                 </HBox>
             </VBox>
             <VBox HBox.hgrow="ALWAYS" >

@@ -33,9 +33,6 @@ public class TabFactory {
             e.printStackTrace();
         }
 
-        for (DataPoint dPoint : datters.getDataPoints())
-            dPoint.checkVisible();
-
         tabby.setContent(main);
         datters.calculateTimesGeneric();
         tabby.setId(datters.getName());
