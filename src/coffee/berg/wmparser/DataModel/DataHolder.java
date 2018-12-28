@@ -180,11 +180,10 @@ public class DataHolder {
      * irregardless if they're the same action number or not.
      *
      */
-    public XYChart.Series<String, Number> calculateIntervalsBetweenActions(String _actionNumber,
+    public ArrayList<XYChart.Data<String, Number>> calculateIntervalsBetweenActions(String _actionNumber,
                                                                            final boolean _sameActionNumbersOnly)
     {
-        XYChart.Series returnValue = new XYChart.Series();
-        returnValue.setName(_actionNumber);
+        ArrayList<XYChart.Data<String, Number>> returnValue = new ArrayList<>();
         LocalTime lastTime = null;
         TreeMap<Integer, Integer> listOfNumbers = new TreeMap<Integer, Integer>();
         int maxVal = 0;
@@ -226,14 +225,8 @@ public class DataHolder {
             //todo add filter so the user can choose what to ignore and not.
             for(int i = 0; i <= maxVal; i++) {
                 Integer find = listOfNumbers.get(i);
-                if(find == null) {
-
-                    XYChart.Data toAdd = new XYChart.Data<>(Integer.valueOf(i).toString(), 0);
-                    returnValue.getData().add(toAdd);
-
-                }
-                else
-                    returnValue.getData().add(new XYChart.Data<>(Integer.valueOf(i).toString(), find));
+                if(find != null)
+                    returnValue.add(new XYChart.Data<>("" + i, find));
             }
 
         }

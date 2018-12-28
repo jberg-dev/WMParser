@@ -1,10 +1,11 @@
 package coffee.berg.wmparser;
 
 import coffee.berg.wmparser.DataModel.DataHolder;
-import coffee.berg.wmparser.DataModel.DataNode;
 import coffee.berg.wmparser.DataModel.DataPoint;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.CategoryAxis;
@@ -22,16 +23,13 @@ import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Random;
-import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 /**
@@ -45,7 +43,7 @@ public class GenericTabController
 	private Button tstBtn;
 
 	private StackPane listOfActions;
-	private TableView rollingLog;
+	private TableView<DataPoint> rollingLog;
 	private StackedBarChart chart;
 
 	private TreeMap tree;
@@ -55,6 +53,27 @@ public class GenericTabController
 	private DataHolder data;
 
 	private Tab _thisTab;
+	final static ExecutorService executor = Executors.newCachedThreadPool();
+
+	Task<Void> sortingTask = new Task<Void>() {
+		@Override protected Void call() throws Exception {
+			while(!isCancelled())
+			{
+				try
+				{
+					CategoryAxis cat = (CategoryAxis) chart.getXAxis();
+					cat.getCategories().sort((a,b) -> Integer.compare(Integer.parseInt(a), Integer.parseInt(b)));
+				} catch (Exception e)
+				{
+					if (Controller.testing)
+						System.out.println(e.toString());
+				}
+				Thread.sleep(1000);
+			}
+
+			return null;
+		}
+	};
 
 	public void setUp(final Tab _t, final DataHolder _dh)
 	{
@@ -67,10 +86,10 @@ public class GenericTabController
 		Node graph = n.lookup("#Graph");
 
 		this.chart = (StackedBarChart) graph;
-		this.rollingLog = (TableView) rollingLog;
+		this.rollingLog = (TableView<DataPoint>) rollingLog;
 		this.listOfActions = (StackPane) listofActions;
 
-		rootNode = new TreeItem("Actions");
+		rootNode = new TreeItem<>("Actions");
 		rootNode.setExpanded(true);
 		treeView = new TreeView<>(rootNode);
 		treeView.setId("TreeView");
@@ -79,6 +98,10 @@ public class GenericTabController
 
 		tree = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	}
+
+	private boolean maybe = true;
+
+	private int count = 0;
 
 	@FXML
 	public void testButton()
@@ -90,31 +113,59 @@ public class GenericTabController
 //		testList.add(new DataNode(ConstantStrings.NATURAL_END_OF_ACTION, "boop"));
 //		rollingLog.getItems().add(new DataPoint(LocalDate.now(), "test", "macroer", testList));
 
-		Random random = new Random(System.currentTimeMillis());
+//		Random random = new Random(System.currentTimeMillis());
+//
+//		for (DataPoint dp : data.getDataPoints())
+//		{
+//			if(random.nextBoolean() || true)
+//				dp.toggleVisible();
+//		}
 
-		for (DataPoint dp : data.getDataPoints())
-		{
-			if(random.nextBoolean() || true)
-				dp.toggleVisible();
-		}
+//		initializeBarChart(maybe);
+//		maybe = !maybe;
 
-		initializeBarChart();
+//		Node n = _thisTab.getContent().lookup("#Graph");
+//		Node n2 = n.getParent();
+//		if (n2 instanceof VBox)
+//		{
+//			VBox vb = (VBox) n2;
+//
+//			StackedBarChart<String, Number> hold = initializeBarChart(false);
+//			vb.getChildren().set(0, hold);
+//
+//			chart = hold;
+//
+//		}
+//		else
+//		{
+//			System.out.println("Shit.");
+//		}
 	}
 
-	void handleClickedTreeleaf(CheckBoxTreeItem _item)
+	@FXML
+	public void testButton2()
 	{
+		CategoryAxis cat = (CategoryAxis) chart.getXAxis();
+		cat.getCategories().sort((a,b) -> Integer.compare(Integer.parseInt(a), Integer.parseInt(b)));
+		return;
+	}
 
+	void handleClickedTreeleaf(CheckBoxTreeItem<String> _item)
+	{
+		logger.info("" + _item.getValue());
 	}
 
 	void initializeListOfActions ()
 	{
 
-		HashMap<String, Integer> hm = (HashMap) data.getUniqueDataNodesAndCount(true, false);
+		HashMap<String, Integer> hm = (HashMap<String, Integer>) data.getUniqueDataNodesAndCount(true, false);
 		tree.putAll(hm);
 
 		//TODO investigate making a more dynamic class that can easier represent number of visible.
 		ArrayList<String> al = new ArrayList<>();
 		tree.forEach((x, y) -> al.add(x + ": " + y));
+
+
 
 		treeView.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
 
@@ -131,9 +182,9 @@ public class GenericTabController
 	void initializeRollingLog ()
 	{
 
-		HashMap<String, Integer> tempHash = (HashMap) data.getUniqueDataNodesAndCount(false, true);
+		HashMap<String, Integer> tempHash = (HashMap<String, Integer>) data.getUniqueDataNodesAndCount(false, true);
 		TreeMap<String, Integer> tempMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		ArrayList<String> tempArrayList = new ArrayList();
+		ArrayList<String> tempArrayList = new ArrayList<>();
 		tempMap.putAll(tempHash);
 		tempMap.forEach((x, y) -> tempArrayList.add(x + ": " + y));
 
@@ -169,7 +220,7 @@ public class GenericTabController
 				{
 
 					if(s.contains(matchThis[0])) {
-						CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem(s);
+						CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem<>(s);
 						newLeaf.setSelected(true);
 						newLeaf.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(),
 								e -> handleClickedTreeleaf(newLeaf));
@@ -185,15 +236,15 @@ public class GenericTabController
 
 		}
 
-		TableColumn dateColumn = new TableColumn("Date");
-		TableColumn timeColumn = new TableColumn("Time");
-		TableColumn dataColumn = new TableColumn("Data");
+		TableColumn<DataPoint, String> dateColumn = new TableColumn<>("Date");
+		TableColumn<DataPoint, String> timeColumn = new TableColumn<DataPoint, String>("Time");
+		TableColumn<DataPoint, String> dataColumn = new TableColumn<DataPoint, String>("Data");
 
 		dateColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("date"));
 		timeColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("timestamp"));
 		dataColumn.setCellValueFactory(new PropertyValueFactory<DataPoint, String>("tokens"));
 
-		ObservableList obs = FXCollections.observableArrayList(toDisplay);
+		ObservableList<DataPoint> obs = FXCollections.observableArrayList(toDisplay);
 
 		rollingLog.setItems(obs);
 		rollingLog.setEditable(true);
@@ -201,33 +252,102 @@ public class GenericTabController
 
 	}
 
-	void initializeBarChart ()
+	XYChart.Series<String, Number> bullshit()
 	{
-		//Barchart
-		chart.setTitle("Summary");
-		chart.getData().clear();
-		chart.setLegendVisible(true);
-		chart.setCategoryGap(1);
+		XYChart.Series<String, Number> rv = new XYChart.Series<>();
+		rv.setName("this is shit");
+		ArrayList<XYChart.Data<String, Number>> temp = new ArrayList<>();
 
-		ArrayList<String> tempArr = data.getUniqueActionNumbers();
-
-		for(String s : tempArr)
+		for (int i = 0; i < 1000; i++)
 		{
-			chart.getData().add(data.calculateIntervalsBetweenActions(s, true));
+			temp.add(new XYChart.Data<>("" + i, 0));
+		}
+
+		rv.setData(
+				FXCollections.observableArrayList(temp)
+		);
+
+		return rv;
+	}
+
+	void initializeBarChart(final boolean _sameNumbersOnly)
+	{
+		Node n = _thisTab.getContent().lookup("#Graph");
+		Node n2 = n.getParent();
+		if (n2 instanceof VBox)
+		{
+			VBox vb = (VBox) n2;
+
+			StackedBarChart<String, Number> hold = makeBarChart(false);
+			vb.getChildren().set(0, hold);
+
+			chart = hold;
+
+			if (!sortingTask.isRunning())
+			{
+				executor.submit(sortingTask);
+			}
+
+			return;
+
+		}
+	}
+
+	StackedBarChart<String, Number> makeBarChart(final boolean _sameNumbersOnly)
+	{
+		CategoryAxis xAxis = new CategoryAxis();
+		NumberAxis yAxis = new NumberAxis();
+		StackedBarChart<String, Number> test = new StackedBarChart<String, Number>(xAxis, yAxis);
+
+
+
+
+		//Barchart
+		test.setTitle("Summary");
+		test.getData().clear();
+		test.layout();
+		test.setLegendVisible(true);
+		test.setCategoryGap(1);
+
+//		XYChart.Series<String, Number> bs = bullshit();
+//		test.getData().add(bs);
+
+		if (_sameNumbersOnly)
+		{
+//			test.getData().add(data.calculateIntervalsBetweenActions("", false));
+		}
+		else
+		{
+			ArrayList<String> tempArr = data.getUniqueActionNumbers();
+
+			for(String s : tempArr)
+			{
+				XYChart.Series<String, Number> currentSeries = new XYChart.Series<>();
+				currentSeries.setData(
+						FXCollections.observableArrayList(
+								data.calculateIntervalsBetweenActions(s, true)
+						)
+				);
+				currentSeries.setName(s);
+				test.getData().add(currentSeries);
+			}
 		}
 //        chart.getData().addAll(dock.getSeriesOfTimes());
-		chart.getXAxis().setAutoRanging(true);
-		chart.getYAxis().setAutoRanging(true);
+		test.getXAxis().setAutoRanging(true);
+		test.getYAxis().setAutoRanging(true);
 
 
-		ObservableList<XYChart.Series> xys = chart.getData();
+		ObservableList<XYChart.Series<String, Number>> xys = test.getData();
 		for(XYChart.Series<String,Number> series : xys)
 		{
 			ArrayList<XYChart.Data> removelist = new ArrayList<>();
 
 			for(XYChart.Data<String,Number> data : series.getData())
 			{
-				if(data.getYValue().equals(0)) removelist.add(data);
+				if(data.getYValue().equals(0))
+				{
+//					removelist.add(data);
+				}
 			}
 
 			series.getData().removeAll(removelist);
@@ -240,6 +360,6 @@ public class GenericTabController
 		}
 
 
-		return;
+		return test;
 	}
 }

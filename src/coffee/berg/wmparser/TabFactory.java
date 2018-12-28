@@ -4,6 +4,7 @@ import coffee.berg.wmparser.DataModel.DataHolder;
 import coffee.berg.wmparser.DataModel.DataPoint;
 import coffee.berg.wmparser.Generics.Pair;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 
@@ -48,7 +49,7 @@ public class TabFactory {
 
         controller.initializeListOfActions();
         controller.initializeRollingLog();
-        controller.initializeBarChart();
+        controller.initializeBarChart(false);
 
         return Optional.of(new Pair(tabby, controller));
     }
