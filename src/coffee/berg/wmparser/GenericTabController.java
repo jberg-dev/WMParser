@@ -2,16 +2,14 @@ package coffee.berg.wmparser;
 
 import coffee.berg.wmparser.DataModel.DataHolder;
 import coffee.berg.wmparser.DataModel.DataPoint;
-import coffee.berg.wmparser.DataModel.PairValue;
+import coffee.berg.wmparser.Generics.ConstantStrings;
+import coffee.berg.wmparser.Generics.CustomTreeNode;
 import coffee.berg.wmparser.Generics.Pair;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
@@ -29,10 +27,9 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.TimerTask;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 /**
@@ -56,6 +53,8 @@ public class GenericTabController
 	private DataHolder data;
 
 	private Tab _thisTab;
+
+	private boolean currentChartBoolean = false;
 
 	TimerTask sortingTask = new TimerTask() {
 		@Override
@@ -112,34 +111,47 @@ public class GenericTabController
 	}
 
 	void handleClickedTreeleaf(CheckBoxTreeItem<String> _item)
-//	void handleClickedTreeleaf(CheckBoxTreeItem<Pair<ConstantStrings, String>> _item)
 	{
-		if(_item.isSelected())
+		if (_item instanceof CustomTreeNode)
 		{
-//			data.ignoreWord(_item.getValue().getFirst(), _item.getValue().getSecond());
-		}
-		else
-		{
-//			data.appreciateWordAgain(_item.getValue().getFirst(), _item.getValue().getSecond());
+			Pair<String, Integer> thePair = ((CustomTreeNode) _item).getData();
+			Optional<ConstantStrings> opti = ConstantStrings.get(_item.getParent().getValue());
+
+			if (opti.isPresent())
+			{
+				if(_item.isSelected())
+				{
+					data.appreciateWordAgain(opti.get(), thePair.getFirst());
+				}
+				else
+				{
+					data.ignoreWord(opti.get(), thePair.getFirst());
+				}
+
+				initializeBarChart(currentChartBoolean);
+
+			}
+			else
+				logger.warning("" + _item.getParent().getValue() + " is not present in ConstantStrings");
+
 		}
 	}
 
 	void initializeListOfActions ()
 	{
 
-		HashMap<String, Integer> hm = (HashMap<String, Integer>) data.getUniqueDataNodesAndCount(true, false);
-		tree.putAll(hm);
+		HashMap<ConstantStrings, Integer> hm = data.getConstanStringsHeadlines();
 
-		//TODO investigate making a more dynamic class that can easier represent number of visible.
-		ArrayList<String> al = new ArrayList<>();
-		tree.forEach((x, y) -> al.add(x + ": " + y));
+//		//TODO investigate making a more dynamic class that can easier represent number of visible.
+//		ArrayList<String> al = new ArrayList<>();
+//		tree.forEach((x, y) -> al.add(x + ": " + y));
 
 
 
 		treeView.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
 
-		for(String s : al) {
-			CheckBoxTreeItem<String> childNode = new CheckBoxTreeItem<>(s);
+		for(ConstantStrings s : hm.keySet()) {
+			CheckBoxTreeItem<String> childNode = new CheckBoxTreeItem<>(s.string);
 			childNode.setSelected(true);
 			rootNode.getChildren().add(childNode);
 		}
@@ -151,17 +163,13 @@ public class GenericTabController
 	void initializeRollingLog ()
 	{
 
-		HashMap<String, Integer> tempHash = (HashMap<String, Integer>) data.getUniqueDataNodesAndCount(false, true);
-		TreeMap<String, Integer> tempMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-		ArrayList<String> tempArrayList = new ArrayList<>();
-		tempMap.putAll(tempHash);
-		tempMap.forEach((x, y) -> tempArrayList.add(x + ": " + y));
-
+		HashMap<ConstantStrings, HashMap<String, Integer>> keysAndValues = data.getKeyAndValue();
 		Node foundNode = listOfActions.lookup("#TreeView");
 
 		if (foundNode == null)
 		{
 			logger.severe("Never update RollingLog before you have updated list of actions");
+			return;
 		}
 
 		TreeView<String> treeView = (TreeView<String>) foundNode;
@@ -177,31 +185,55 @@ public class GenericTabController
 				toDisplay.add(d);
 		}
 
+		for (final ConstantStrings _cS : keysAndValues.keySet())
+		{
+			HashMap<String, Integer> unravel = keysAndValues.get(_cS);
+			Optional<TreeItem<String>> opti = obsL.stream()
+					.filter(d -> d.getValue().equals(_cS.string)).findFirst();
 
-		for(String s : tempArrayList) {
-			boolean found = false;
-			for(TreeItem<String> node : obsL) {
+			if (opti.isPresent())
+			{
+				TreeItem<String> node = opti.get();
 
-				String[] matchThis = node.getValue().split(": ");
-				if(matchThis.length == 2)
+				for (String s : unravel.keySet())
 				{
+					CustomTreeNode newLeaf = new CustomTreeNode(new Pair<String, Integer>(s, unravel.get(s)));
+					newLeaf.setSelected(true);
+					newLeaf.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(),
+							e -> handleClickedTreeleaf(newLeaf));
 
-					if(s.contains(matchThis[0])) {
-						CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem<>(s);
-						newLeaf.setSelected(true);
-						newLeaf.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(),
-								e -> handleClickedTreeleaf(newLeaf));
-						node.getChildren().add(newLeaf);
-						found = true;
-					}
+					node.getChildren().add(newLeaf);
 				}
-				else System.out.println("not match this! "+ node.getValue());
-
-
 			}
-			if(!found && Controller.testing) System.out.println("Couldn't find container for: "+ s);
+			else
+				logger.info("Couldn't find any matching node for " + _cS.string);
 
 		}
+
+//		for(String s : tempArrayList) {
+//			boolean found = false;
+//			for(TreeItem<String> node : obsL) {
+//
+//				String[] matchThis = node.getValue().split(": ");
+//				if(matchThis.length == 2)
+//				{
+//
+//					if(s.contains(matchThis[0])) {
+//						CheckBoxTreeItem<String> newLeaf = new CheckBoxTreeItem<>(s);
+//						newLeaf.setSelected(true);
+//						newLeaf.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(),
+//								e -> handleClickedTreeleaf(newLeaf));
+//						node.getChildren().add(newLeaf);
+//						found = true;
+//					}
+//				}
+//				else System.out.println("not match this! "+ node.getValue());
+//
+//
+//			}
+//			if(!found && Controller.testing) System.out.println("Couldn't find container for: "+ s);
+//
+//		}
 
 		TableColumn<DataPoint, String> dateColumn = new TableColumn<>("Date");
 		TableColumn<DataPoint, String> timeColumn = new TableColumn<DataPoint, String>("Time");
@@ -217,24 +249,6 @@ public class GenericTabController
 		rollingLog.setEditable(true);
 		rollingLog.getColumns().addAll(dateColumn, timeColumn, dataColumn);
 
-	}
-
-	XYChart.Series<String, Number> bullshit()
-	{
-		XYChart.Series<String, Number> rv = new XYChart.Series<>();
-		rv.setName("this is shit");
-		ArrayList<XYChart.Data<String, Number>> temp = new ArrayList<>();
-
-		for (int i = 0; i < 1000; i++)
-		{
-			temp.add(new XYChart.Data<>("" + i, 0));
-		}
-
-		rv.setData(
-				FXCollections.observableArrayList(temp)
-		);
-
-		return rv;
 	}
 
 	void initializeBarChart(final boolean _sameNumbersOnly)
@@ -262,6 +276,8 @@ public class GenericTabController
 //		CategoryAxis xAxis = new CategoryAxis();
 //		NumberAxis yAxis = new NumberAxis();
 //		StackedBarChart<String, Number> chart = new StackedBarChart<String, Number>(xAxis, yAxis);
+
+		currentChartBoolean = _sameNumbersOnly;
 
 		//Barchart
 		chart.setTitle("Summary");

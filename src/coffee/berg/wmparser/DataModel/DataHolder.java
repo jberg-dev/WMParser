@@ -1,6 +1,6 @@
 package coffee.berg.wmparser.DataModel;
 
-import coffee.berg.wmparser.ConstantStrings;
+import coffee.berg.wmparser.Generics.ConstantStrings;
 import coffee.berg.wmparser.Controller;
 import javafx.scene.chart.XYChart;
 
@@ -105,7 +105,7 @@ public class DataHolder {
         {
             for (PairValue pv : temp)
             {
-                DataPoint parent = dp.get(pv.getPointPlace());
+                DataPoint parent = dp.get(pv.getNodePlace());
                 DataNode what = parent.getTokens().get(pv.getPointPlace());
                 if (what.getValue().equals(_subject))
                 {
@@ -126,7 +126,7 @@ public class DataHolder {
         {
             for (PairValue pv : temp)
             {
-                DataPoint parent = dp.get(pv.getPointPlace());
+                DataPoint parent = dp.get(pv.getNodePlace());
                 DataNode what = parent.getTokens().get(pv.getPointPlace());
                 if (what.getValue().equals(_subject))
                 {
@@ -233,7 +233,6 @@ public class DataHolder {
 
         if (recievedActionNumberStrings != null)
         {
-
             for( PairValue pValue : recievedActionNumberStrings)
             {
                 DataPoint currentPoint = dp.get(pValue.getNodePlace());
@@ -278,10 +277,11 @@ public class DataHolder {
     }
 
 
-    public Map<String, Integer> getUniqueDataNodesAndCount( boolean getUniqueKey, boolean getKeyAndVal ) {
-        Map<String, Integer> map = new HashMap<>();
+    public HashMap<ConstantStrings, Integer> getConstanStringsHeadlines ()
+    {
+        Map<ConstantStrings, Integer> map = new HashMap<>();
         ArrayList<ConstantStrings> tempArr = new ArrayList<>();
-        HashMap<String, Integer> rv = new HashMap<>();
+        HashMap<ConstantStrings, Integer> rv = new HashMap<>();
 
         // get all tokens, add to temporary array
         dp.forEach(x -> x.getTokens()
@@ -290,83 +290,114 @@ public class DataHolder {
         // add all tokens you got to a hashmap, count collisions in the Integer
         for (ConstantStrings temp : tempArr) {
             Integer count = map.get(temp);
-            map.put(temp.string, (count == null) ? 1 : count + 1);
+            map.put(temp, (count == null) ? 1 : count + 1);
         }
 
+        rv.putAll(map);
+        return rv;
+    }
 
+    public HashMap<ConstantStrings, HashMap<String, Integer>> getKeyAndValue ()
+    {
 
-        // if you want to keep the unique keys, add them to the returnval
-        if(getUniqueKey) {
-            rv.putAll(map);
+        ArrayList<ConstantStrings> tempArr = new ArrayList<>();
+        HashMap<ConstantStrings, HashMap<String, Integer>> rv = new HashMap<>();
+
+        // get all tokens, add to temporary array
+        dp.forEach(x -> x.getTokens()
+                .forEach(y -> tempArr.add(y.getKey())));
+
+        // add all tokens you got to a hashmap, count collisions in the Integer
+        for (ConstantStrings temp : tempArr) {
+            rv.put(temp, new HashMap<>());
         }
 
-        // if you want the key+value pair as a string, summed up and counted, add them to the returnval
-        if(getKeyAndVal){
+        /**
+         * For each key in the map, iterate over every token in the class' data point storage.
+         * For every token, add to the temporary map, and count it.
+         */
 
-            HashMap<String, Integer> tempMap = new HashMap<>();
+//        map.keySet().iterator()
+//                .forEachRemaining(it -> dp.stream()
+//                        .forEach(x -> x.getTokens()
+//                                .stream()
+//                                .filter(matches -> matches.getKey().string.contains(it))
+//                                .forEach(y -> addToMap(y.getKey().string, y.getValue(), tempMap))));
 
-            /**
-             * For each key in the map, iterate over every token in the class' data point storage.
-             * For every token, add to the temporary map, and count it.
-             */
 
-            map.keySet().iterator()
-                    .forEachRemaining(it -> dp.stream()
-                                    .forEach(x -> x.getTokens()
-                                            .stream()
-                                            .filter(matches -> matches.getKey().string.contains(it))
-                                                    .forEach(y -> addToMap(y.getKey().string, y.getValue(), tempMap))));
+        // Always add all tokens, but don't count if they're invisible.
+        for (DataPoint _dP : dp)
+        {
+            _dP.checkVisibility();
 
-            rv.putAll(tempMap);
+            for (DataNode _dN : _dP.getTokens())
+            {
+                if (rv.containsKey(_dN.getKey()))
+                {
+                    HashMap<String, Integer> temp = rv.get(_dN.getKey());
+                    Integer count = temp.get(_dN.getValue());
+
+                    if (count == null)
+                        count = 0;
+                    if (_dP.isVisible())
+                        count++;
+
+                    temp.put(_dN.getValue(), count);
+                }
+                else
+                {
+                    logger.info("" + _dN.getKey() +"  does not exist in the map.");
+                }
+            }
         }
 
         return rv;
     }
 
-    private void addToMap(String s1, String s2, Map<String, Integer> hm) {
-        String temp = s1 + ", " + s2;
-        Integer count = hm.get(temp);
-        hm.put(temp, (count == null) ? 1 : count + 1);
-    }
+//    private void addToMap(String s1, String s2, Map<String, Integer> hm) {
+//        String temp = s1 + ", " + s2;
+//        Integer count = hm.get(temp);
+//        hm.put(temp, (count == null) ? 1 : count + 1);
+//    }
 
-    public XYChart.Series<Number, Number> getSeriesOfTimes() {
-        XYChart.Series returnValue = new XYChart.Series();
-        returnValue.setName(this.name);
-        int maxVal = 0;
-        TreeMap<Integer, Integer> listOfNumbers = new TreeMap<>();
-
-
-        for(DataPoint d : dp) {
-            Optional<DataNode> o = d.getTokens().stream().filter(x -> x.getKey().equals(ConstantStrings.NAME_OF_MACRO_TIME_STRING)).findFirst();
-            if(o.isPresent())
-            {
-                String val =  o.get().getValue();
-                int parsed = Integer.parseInt(val);
-                if(parsed > maxVal) maxVal = parsed;
-
-                Integer count = listOfNumbers.get(parsed);
-                listOfNumbers.put(parsed, (count == null) ? 1 : count + 1);
-
-            }
-
-        }
-
-        for(int i = 2; i <= maxVal; i++) {
-            Integer find = listOfNumbers.get(i);
-            if(find == null) {
-
-//                returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
-
-
-                returnValue.getData().add(new XYChart.Data(Integer.valueOf(i), Integer.valueOf(0)));
-
-
-            }
-            else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i), find));
-        }
-
-        return returnValue;
-    }
+//    public XYChart.Series<Number, Number> getSeriesOfTimes() {
+//        XYChart.Series returnValue = new XYChart.Series();
+//        returnValue.setName(this.name);
+//        int maxVal = 0;
+//        TreeMap<Integer, Integer> listOfNumbers = new TreeMap<>();
+//
+//
+//        for(DataPoint d : dp) {
+//            Optional<DataNode> o = d.getTokens().stream().filter(x -> x.getKey().equals(ConstantStrings.NAME_OF_MACRO_TIME_STRING)).findFirst();
+//            if(o.isPresent())
+//            {
+//                String val =  o.get().getValue();
+//                int parsed = Integer.parseInt(val);
+//                if(parsed > maxVal) maxVal = parsed;
+//
+//                Integer count = listOfNumbers.get(parsed);
+//                listOfNumbers.put(parsed, (count == null) ? 1 : count + 1);
+//
+//            }
+//
+//        }
+//
+//        for(int i = 2; i <= maxVal; i++) {
+//            Integer find = listOfNumbers.get(i);
+//            if(find == null) {
+//
+////                returnValue.getData().add(new XYChart.Data(Integer.valueOf(i).toString(), Integer.valueOf(0)));
+//
+//
+//                returnValue.getData().add(new XYChart.Data(Integer.valueOf(i), Integer.valueOf(0)));
+//
+//
+//            }
+//            else returnValue.getData().add(new XYChart.Data(Integer.valueOf(i), find));
+//        }
+//
+//        return returnValue;
+//    }
 
 }
 

@@ -1,6 +1,6 @@
 package coffee.berg.wmparser.DataModel;
 
-import coffee.berg.wmparser.ConstantStrings;
+import coffee.berg.wmparser.Generics.ConstantStrings;
 
 /**
  * Created by Bergerking on 2017-05-18.
@@ -41,7 +41,11 @@ public class DataNode {
         this.value = value;
     }
 
-    public void setInvisible() { this.visible = false; };
+    public void setInvisible()
+    {
+        this.visible = false;
+        this.getKey();
+    };
     public void setCanSee () { this.visible = true; }
     public boolean isInvisible () { return !visible; }
 
