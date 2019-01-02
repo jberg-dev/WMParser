@@ -76,15 +76,18 @@ public class DataHolder {
 
         ArrayList<PairValue> indexArr = metaMap.get(_node.getKey());
 
+		short left = (short)(dp.size() - 1);
+		byte right = (byte)(_d.getTokens().size() - 1);
+
         if (indexArr == null)
         {
             ArrayList<PairValue> init = new ArrayList<>();
-            init.add(new PairValue((short) dp.size(), (byte) _d.getTokens().size()));
+            init.add(new PairValue(left, right));
             metaMap.put(_node.getKey(), init);
         }
         else
         {
-            indexArr.add(new PairValue((short) dp.size(), (byte) _d.getTokens().size()));
+            indexArr.add(new PairValue(left, right));
         }
 
         _d.getTokens().add(_node);
@@ -105,14 +108,20 @@ public class DataHolder {
         {
             for (PairValue pv : temp)
             {
-                DataPoint parent = dp.get(pv.getNodePlace());
-                DataNode what = parent.getTokens().get(pv.getPointPlace());
-                if (what.getValue().equals(_subject))
-                {
-                    what.setInvisible();
-                    parent.checkVisibility();
-                }
-            }
+				try
+				{
+					DataPoint parent = dp.get(pv.getNodePlace());
+					DataNode what = parent.getTokens().get(pv.getPointPlace());
+					if (what.getValue().equals(_subject))
+					{
+						what.setInvisible();
+						parent.checkVisibility();
+					}
+				} catch (Exception e)
+				{
+					System.out.println("");
+				}
+			}
         }
         else
             if(Controller.testing)
@@ -126,13 +135,19 @@ public class DataHolder {
         {
             for (PairValue pv : temp)
             {
-                DataPoint parent = dp.get(pv.getNodePlace());
-                DataNode what = parent.getTokens().get(pv.getPointPlace());
-                if (what.getValue().equals(_subject))
-                {
-                    what.setCanSee();
-                    parent.checkVisibility();
-                }
+            	try
+				{
+					DataPoint parent = dp.get(pv.getNodePlace());
+					DataNode what = parent.getTokens().get(pv.getPointPlace());
+					if (what.getValue().equals(_subject))
+					{
+						what.setCanSee();
+						parent.checkVisibility();
+					}
+				}catch (IndexOutOfBoundsException ioob)
+				{
+					System.out.println("");
+				}
             }
         }
         else
