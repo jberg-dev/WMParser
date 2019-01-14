@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_wmparser" default="compile.module.wmparser">
+  <dirname property="module.wmparser.basedir" file="${ant.file.module_wmparser}"/>
+  
+  <property name="module.jdk.home.wmparser" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.wmparser" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.wmparser" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.wmparser" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="wmparser.output.dir" value="${module.wmparser.basedir}/out/production/WMParser"/>
+  <property name="wmparser.testoutput.dir" value="${module.wmparser.basedir}/out/test/WMParser"/>
+  
+  <path id="wmparser.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="wmparser.module.production.classpath">
+    <path refid="${module.jdk.classpath.wmparser}"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+    <pathelement location="${basedir}/../../Downloads/mockito-2.8.28/mockito-2.8.28/build/libs/mockito-core-2.8.29.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+  </path>
+  
+  <path id="wmparser.runtime.production.module.classpath">
+    <pathelement location="${wmparser.output.dir}"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+    <pathelement location="${basedir}/../../Downloads/mockito-2.8.28/mockito-2.8.28/build/libs/mockito-core-2.8.29.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+  </path>
+  
+  <path id="wmparser.module.classpath">
+    <path refid="${module.jdk.classpath.wmparser}"/>
+    <pathelement location="${wmparser.output.dir}"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+    <pathelement location="${basedir}/../../Downloads/mockito-2.8.28/mockito-2.8.28/build/libs/mockito-core-2.8.29.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+  </path>
+  
+  <path id="wmparser.runtime.module.classpath">
+    <pathelement location="${wmparser.testoutput.dir}"/>
+    <pathelement location="${wmparser.output.dir}"/>
+    <pathelement location="${idea.home}/lib/junit-4.12.jar"/>
+    <pathelement location="${basedir}/../../Downloads/mockito-2.8.28/mockito-2.8.28/build/libs/mockito-core-2.8.29.jar"/>
+    <pathelement location="${idea.home}/lib/hamcrest-core-1.3.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.wmparser">
+    <patternset refid="ignored.files"/>
+    <exclude name="out/**"/>
+    <exclude name="out/test/**"/>
+    <exclude name="out/test/WMParser/**"/>
+    <exclude name="out/test/WMParser/src/**"/>
+    <exclude name="out/test/WMParser/src/com/**"/>
+    <exclude name="out/test/WMParser/src/com/bergerking/**"/>
+    <exclude name="out/test/WMParser/src/com/bergerking/wmparser/**"/>
+    <exclude name="out/test/WMParser/src/com/bergerking/wmparser/DataModel/**"/>
+    <exclude name="out/test/WMParser/.idea/**"/>
+    <exclude name="out/production/**"/>
+    <exclude name="out/production/WMParser/**"/>
+    <exclude name="out/production/WMParser/com/**"/>
+    <exclude name="out/production/WMParser/com/bergerking/**"/>
+    <exclude name="out/production/WMParser/com/bergerking/wmparser/**"/>
+    <exclude name="out/production/WMParser/com/bergerking/wmparser/DataModel/**"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.wmparser">
+    <patternset refid="excluded.from.module.wmparser"/>
+  </patternset>
+  
+  <path id="wmparser.module.sourcepath">
+    <dirset dir="${module.wmparser.basedir}/../../IdeaProjects">
+      <include name="WMParser/src"/>
+    </dirset>
+  </path>
+  
+  <path id="wmparser.module.test.sourcepath">
+    <dirset dir="${module.wmparser.basedir}/../../IdeaProjects">
+      <include name="WMParser"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.wmparser" depends="compile.module.wmparser.production,compile.module.wmparser.tests" description="Compile module WMParser"/>
+  
+  <target name="compile.module.wmparser.production" depends="register.custom.compilers" description="Compile module WMParser; production classes">
+    <mkdir dir="${wmparser.output.dir}"/>
+    <javac2 destdir="${wmparser.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.wmparser}/javac">
+      <compilerarg line="${compiler.args.wmparser}"/>
+      <bootclasspath refid="wmparser.module.bootclasspath"/>
+      <classpath refid="wmparser.module.production.classpath"/>
+      <src refid="wmparser.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.wmparser"/>
+    </javac2>
+    
+    <copy todir="${wmparser.output.dir}">
+      <fileset dir="${module.wmparser.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.wmparser.tests" depends="register.custom.compilers,compile.module.wmparser.production" description="compile module WMParser; test classes" unless="skip.tests">
+    <mkdir dir="${wmparser.testoutput.dir}"/>
+    <javac2 destdir="${wmparser.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.wmparser}/javac">
+      <compilerarg line="${compiler.args.wmparser}"/>
+      <bootclasspath refid="wmparser.module.bootclasspath"/>
+      <classpath refid="wmparser.module.classpath"/>
+      <src refid="wmparser.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.wmparser"/>
+    </javac2>
+    
+    <copy todir="${wmparser.testoutput.dir}">
+      <fileset dir="${module.wmparser.basedir}">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.wmparser" description="cleanup module">
+    <delete dir="${wmparser.output.dir}"/>
+    <delete dir="${wmparser.testoutput.dir}"/>
+  </target>
+</project>

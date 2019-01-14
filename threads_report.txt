@@ -1,0 +1,90 @@
+"pool-2-thread-4@3529" prio=5 tid=0x1a nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	  at coffee.berg.wmparser.GenericTabController$1.call(GenericTabController.java:64)
+	  at coffee.berg.wmparser.GenericTabController$1.call(GenericTabController.java:59)
+	  at javafx.concurrent.Task$TaskCallable.call(Task.java:1423)
+	  at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	  at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	  at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	  at java.lang.Thread.run(Thread.java:748)
+
+"pool-2-thread-3@3525" prio=5 tid=0x19 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	  at coffee.berg.wmparser.GenericTabController$1.call(GenericTabController.java:64)
+	  at coffee.berg.wmparser.GenericTabController$1.call(GenericTabController.java:59)
+	  at javafx.concurrent.Task$TaskCallable.call(Task.java:1423)
+	  at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	  at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	  at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	  at java.lang.Thread.run(Thread.java:748)
+
+"pool-2-thread-2@3524" prio=5 tid=0x18 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	  at coffee.berg.wmparser.GenericTabController$1.call(GenericTabController.java:64)
+	  at coffee.berg.wmparser.GenericTabController$1.call(GenericTabController.java:59)
+	  at javafx.concurrent.Task$TaskCallable.call(Task.java:1423)
+	  at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	  at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	  at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	  at java.lang.Thread.run(Thread.java:748)
+
+"pool-2-thread-1@3471" prio=5 tid=0x17 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+	  at coffee.berg.wmparser.GenericTabController$1.call(GenericTabController.java:64)
+	  at coffee.berg.wmparser.GenericTabController$1.call(GenericTabController.java:59)
+	  at javafx.concurrent.Task$TaskCallable.call(Task.java:1423)
+	  at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	  at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	  at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	  at java.lang.Thread.run(Thread.java:748)
+
+"Prism Font Disposer@2110" daemon prio=10 tid=0x15 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	  at java.lang.Object.wait(Object.java:-1)
+	  at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	  at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:164)
+	  at com.sun.javafx.font.Disposer.run(Disposer.java:93)
+	  at java.lang.Thread.run(Thread.java:748)
+
+"Thread-1@787" daemon prio=5 tid=0x10 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	  at sun.misc.Unsafe.park(Unsafe.java:-1)
+	  at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	  at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	  at java.util.concurrent.LinkedBlockingDeque.takeFirst(LinkedBlockingDeque.java:492)
+	  at com.sun.glass.ui.InvokeLaterDispatcher.run(InvokeLaterDispatcher.java:108)
+
+"Finalizer@2806" daemon prio=8 tid=0x3 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	  at java.lang.Object.wait(Object.java:-1)
+	  at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)
+	  at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:164)
+	  at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:209)
+
+"Reference Handler@2807" daemon prio=10 tid=0x2 nid=NA waiting
+  java.lang.Thread.State: WAITING
+	  at java.lang.Object.wait(Object.java:-1)
+	  at java.lang.Object.wait(Object.java:502)
+	  at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	  at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)
+
+"DestroyJavaVM@3728" prio=5 tid=0x1b nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+
+"Thread-3@904" daemon prio=5 tid=0x13 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+
+"Attach Listener@2804" daemon prio=5 tid=0x5 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+
+"Signal Dispatcher@2805" daemon prio=9 tid=0x4 nid=NA runnable
+  java.lang.Thread.State: RUNNABLE
+
