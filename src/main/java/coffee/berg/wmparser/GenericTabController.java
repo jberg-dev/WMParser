@@ -75,11 +75,12 @@ public class GenericTabController
 			try
 			{
 				CategoryAxis cat = (CategoryAxis) chart.getXAxis();
-				cat.getCategories().sort((a,b) -> Integer.compare(Integer.parseInt(a), Integer.parseInt(b)));
+				ObservableList<String> trash = cat.getCategories();
+				trash.sort((a,b) -> Integer.compare(Integer.parseInt(a), Integer.parseInt(b)));
+				cat.setCategories(trash);
 			} catch (Exception e)
 			{
-				if (Controller.testing)
-					System.out.println(e.toString());
+				e.printStackTrace();
 			}
 		}
 	};
@@ -89,13 +90,13 @@ public class GenericTabController
 	private boolean alreadyRunning = false;
 
 	@FXML
-	public void testButton()
+	public void sameButton ()
 	{
 		initializeBarChart(true);
 	}
 
 	@FXML
-	public void testButton2()
+	public void separateButton ()
 	{
 		initializeBarChart(false);
 	}
@@ -328,7 +329,7 @@ public class GenericTabController
 
 			if (!alreadyRunning)
 			{
-				Controller.timer.scheduleAtFixedRate(sortingTask, 0, 1000);
+				Controller.timer.scheduleAtFixedRate(sortingTask, 3000, 1000);
 				alreadyRunning = !alreadyRunning;
 			}
 			((VBox) n2).layout();

@@ -24,10 +24,12 @@ public class ParserMain extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader();
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("WMParser.fxml"));
 
-        Parent root = loader.load(getClass().getResource("/WMParser.fxml"));
+        Parent root = loader.load();
 
+        Controller c = loader.getController();
+//        c.okwhatever();
 
         URL path;
 
@@ -89,7 +91,7 @@ public class ParserMain extends Application {
             System.setErr(ps);
             SimpleFormatter fmt = new SimpleFormatter();
             StreamHandler sh = new StreamHandler(System.out, fmt);
-            LOGGER.addHandler(sh);
+            Logger.getGlobal().addHandler(sh);
             sh.setLevel(Level.ALL);
 
 
@@ -103,7 +105,7 @@ public class ParserMain extends Application {
         else {
             LOGGER.log(Level.WARNING, "Could not find tag #LogRoll in MainTabPane");
         }
-
+        c.okwhatever();
     }
 
 

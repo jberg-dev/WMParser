@@ -60,7 +60,7 @@
     <orderEntry type="module-library">
       <library name="Maven: com.oracle:javafx:2.2">
         <CLASSES>
-          <root url="jar://C:/Program Files/Java/jdk1.8.0_131/jre/lib/ext/jfxrt.jar!/" />
+          <root url="jar://C:/Program Files/Java/jdk1.8.0_191/jre/lib/ext/jfxrt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

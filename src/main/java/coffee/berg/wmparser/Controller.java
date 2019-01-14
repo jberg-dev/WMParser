@@ -11,6 +11,7 @@ import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
@@ -21,6 +22,7 @@ import javax.imageio.ImageIO;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,7 +36,8 @@ import java.util.regex.Pattern;
 /**
  * Created by Bergerking on 2017-04-23.
  */
-public class Controller {
+public class Controller
+{
 
     @FXML
     private MenuBar menuBar;
@@ -71,36 +74,37 @@ public class Controller {
 
 
 
-    public void initialize(){
+    public void okwhatever()
+    {
 
-        LOGGER.info("Initializing main controllet.");
-        //Load properties file
-        Properties prop = new Properties();
-        InputStream input = null;
-
-        try {
-
-            String filename = "config.properties";
-            input = Controller.class.getClassLoader().getResourceAsStream(filename);
-            if(input==null){
-                System.out.println("Sorry, unable to find " + filename);
-                return;
-            }
-
-            prop.load(input);
-            testing = Boolean.parseBoolean(prop.getProperty("testing"));
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if(input != null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+//        //Load properties file
+//        Properties prop = new Properties();
+//        InputStream input = null;
+//
+//        try {
+//
+//            String filename = "config.properties";
+//            input = Controller.class.getClassLoader().getResourceAsStream(filename);
+//            if(input==null){
+//                System.out.println("Sorry, unable to find " + filename);
+//                return;
+//            }
+//
+//            prop.load(input);
+//            testing = false;
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        } finally {
+//            if(input != null){
+//                try {
+//                    input.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+        testing = false;
         tabsAndControllers = new ArrayList<>();
         bindStatusLabel();
 
@@ -116,7 +120,6 @@ public class Controller {
     }
 
     public void bindStatusLabel() {
-        LOGGER.info("Initializing Status Label");
         stringProperty = new SimpleStringProperty("Welcome to WMacroParser");
         statusLabel.textProperty().bind(stringProperty);
     }
@@ -228,10 +231,10 @@ public class Controller {
                 super.succeeded();
                 Platform.runLater(() -> addNewTab());
                 System.out.println("Done!");
-//                updateMessage("");
+                updateMessage("");
             }
         };
-//        task.messageProperty().addListener((obs, oldMessage, newMessage) -> stringProperty.set(newMessage));
+        task.messageProperty().addListener((obs, oldMessage, newMessage) -> stringProperty.set(newMessage));
 
         new Thread(task).start();
 
