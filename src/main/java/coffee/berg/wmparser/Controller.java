@@ -5,6 +5,7 @@ import coffee.berg.wmparser.DataModel.DataNode;
 import coffee.berg.wmparser.DataModel.DataPoint;
 import coffee.berg.wmparser.Generics.ConstantStrings;
 import coffee.berg.wmparser.Generics.Pair;
+import coffee.berg.wmparser.Generics.PropertiesManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -32,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static coffee.berg.wmparser.Generics.PropertiesManager.lastDirPropName;
 
 /**
  * Created by Bergerking on 2017-04-23.
@@ -65,6 +68,7 @@ public class Controller
     private DataManagementModel dmm = new DataManagementModel();
     private ArrayList<Pair<Tab, GenericTabController>> tabsAndControllers;
     final static Timer timer = new Timer("Keep Graphs Sorted", true);
+
 
 
     // Patterns so we don't compile them all the time.
@@ -130,6 +134,13 @@ public class Controller
             //Make file chooser
             FileChooser fileChooser = new FileChooser();
 
+            // attempt to resume from last loads directory
+            Optional<String> lastDirOpti = PropertiesManager.getProperty(PropertiesManager.lastDirPropName);
+            if (lastDirOpti.isPresent())
+            {
+                fileChooser.setInitialDirectory(new File(lastDirOpti.get()));
+            }
+
             //Display and get file chosen, pass on to function who reads the file.
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt", "*.log"));
             fileChooser.setTitle("Select Macro Log File");
@@ -139,14 +150,17 @@ public class Controller
         }
 
         if(file != null) {
-            if(!testing) LOGGER.log(Level.INFO, "Loading file from " + file.getAbsolutePath());
+            if(!testing)
+            {
+                LOGGER.log(Level.INFO, "Loading file from " + file.getAbsolutePath());
+                PropertiesManager.setProp(lastDirPropName, file.getParent());
+            }
             parseInput(loadSelectedFile(file));
             addNewTab();
 
         }
-        else LOGGER.log(Level.SEVERE,"File was NULL!");
-
     }
+
     /*
         Read file passed in, return set of lines.
      */
@@ -154,19 +168,23 @@ public class Controller
 
         List<String> input = new ArrayList<>();
 
-        try {
-            if(file != null) Files.lines(file.toPath()).forEach(s -> input.add(s));
+        try
+        {
+            if(file != null)
+                Files.lines(file.toPath()).forEach(s -> input.add(s));
         }
         catch (IOException e){
             LOGGER.log(Level.FINE, e.toString());
         }
 
 
-        if(input.size() >= 1) {
+        if (input.size() >= 1)
+        {
             if(testing) System.out.println("Read "+ input.size() + " lines from file");
             return input;
         }
-        else LOGGER.log(Level.WARNING, "Failed to read anything from file or file was empty.");
+        else
+            LOGGER.log(Level.WARNING, "Failed to read anything from file or file was empty.");
 
         return null;
     }
@@ -194,8 +212,6 @@ public class Controller
                     }
                     else LOGGER.log(Level.WARNING, "failed to produce tab for" + al.get(iterate));
                 }
-                else System.out.println("Did not attempt to create new tab for: " + al.get(i));
-
             }
         }
         else LOGGER.log(Level.FINE, "Could not get a list of holders from DMM - Optional not present!");

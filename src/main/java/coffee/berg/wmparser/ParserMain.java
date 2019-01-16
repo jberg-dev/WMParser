@@ -1,5 +1,6 @@
 package coffee.berg.wmparser;
 
+import coffee.berg.wmparser.Generics.PropertiesManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +26,7 @@ public class ParserMain extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("WMParser.fxml"));
+        PropertiesManager pm = new PropertiesManager();
 
         Parent root = loader.load();
 
